@@ -5,7 +5,7 @@ INCLUDE(CheckCSourceCompiles)
 INCLUDE(cmake/macros.cmake)
 PROJECT(libaec)
 SET(libaec_VERSION_MAJOR 0)
-SET(libaec_VERSION_MINOR 2)
+SET(libaec_VERSION_MINOR 3)
 SET(CMAKE_BUILD_TYPE Release)
 ENABLE_TESTING()
 

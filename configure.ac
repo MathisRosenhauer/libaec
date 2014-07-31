@@ -1,5 +1,5 @@
 AC_PREREQ([2.64])
-AC_INIT([libaec], [0.2], [rosenhauer@dkrz.de])
+AC_INIT([libaec], [0.3], [rosenhauer@dkrz.de])
 
 AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_AUX_DIR([config])
