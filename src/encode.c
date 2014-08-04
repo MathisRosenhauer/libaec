@@ -248,7 +248,7 @@ static void preprocess_unsigned(struct aec_stream *strm)
     struct internal_state *state = strm->state;
     const uint32_t *restrict x = state->data_raw;
     uint32_t *restrict d = state->data_pp;
-    uint32_t xmax = (uint32_t)state->xmax;
+    uint32_t xmax = state->xmax;
     uint32_t rsi = strm->rsi * strm->block_size - 1;
     unsigned int i;
 
@@ -279,14 +279,14 @@ static void preprocess_signed(struct aec_stream *strm)
        Preprocess RSI of signed samples.
     */
 
-    int64_t D;
+    uint32_t D;
     struct internal_state *state = strm->state;
-    uint32_t *restrict d = state->data_pp;
     int32_t *restrict x = (int32_t *)state->data_raw;
-    uint32_t m = UINT64_C(1) << (strm->bits_per_sample - 1);
-    int64_t xmax = state->xmax;
-    int64_t xmin = state->xmin;
+    uint32_t *restrict d = state->data_pp;
+    int32_t xmax = (int32_t)state->xmax;
+    int32_t xmin = (int32_t)state->xmin;
     uint32_t rsi = strm->rsi * strm->block_size - 1;
+    uint32_t m = UINT64_C(1) << (strm->bits_per_sample - 1);
     unsigned int i;
 
     state->ref = 1;
@@ -297,17 +297,17 @@ static void preprocess_signed(struct aec_stream *strm)
     for (i = 0; i < rsi; i++) {
         x[i + 1] = (x[i + 1] ^ m) - m;
         if (x[i + 1] < x[i]) {
-            D = (int64_t)x[i] - x[i + 1];
-            if (D <= xmax - x[i])
-                d[i + 1] = 2 * (uint32_t)D - 1;
+            D = (uint32_t)(x[i] - x[i + 1]);
+            if (D <= (uint32_t)(xmax - x[i]))
+                d[i + 1] = 2 * D - 1;
             else
-                d[i + 1] = (uint32_t)xmax - x[i + 1];
+                d[i + 1] = xmax - x[i + 1];
         } else {
-            D = (int64_t)x[i + 1] - x[i];
-            if (D <= x[i] - xmin)
-                d[i + 1] = 2 * (uint32_t)D;
+            D = (uint32_t)(x[i + 1] - x[i]);
+            if (D <= (uint32_t)(x[i] - xmin))
+                d[i + 1] = 2 * D;
             else
-                d[i + 1] = x[i + 1] - (uint32_t)xmin;
+                d[i + 1] = x[i + 1] - xmin;
         }
     }
     state->uncomp_len = (strm->block_size - 1) * strm->bits_per_sample;
@@ -854,8 +854,8 @@ int aec_encode_init(struct aec_stream *strm)
     state->rsi_len = strm->rsi * strm->block_size * state->bytes_per_sample;
 
     if (strm->flags & AEC_DATA_SIGNED) {
-        state->xmin = -(INT64_C(1) << (strm->bits_per_sample - 1));
         state->xmax = (UINT64_C(1) << (strm->bits_per_sample - 1)) - 1;
+        state->xmin = ~state->xmax;
         state->preprocess = preprocess_signed;
     } else {
         state->xmin = 0;

@@ -81,10 +81,10 @@ struct internal_state {
     int id_len;
 
     /* minimum integer for preprocessing */
-    int64_t xmin;
+    uint32_t xmin;
 
     /* maximum integer for preprocessing */
-    int64_t xmax;
+    uint32_t xmax;
 
     uint32_t i;
 
