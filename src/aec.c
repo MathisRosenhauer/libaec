@@ -1,22 +1,19 @@
 /**
  * @file aec.c
  *
- * @author Mathis Rosenhauer, Deutsches Klimarechenzentrum
- * @author Moritz Hanke, Deutsches Klimarechenzentrum
- * @author Joerg Behrens, Deutsches Klimarechenzentrum
- * @author Luis Kornblueh, Max-Planck-Institut fuer Meteorologie
- *
  * @section LICENSE
  * Copyright 2012 - 2014
  *
- * Mathis Rosenhauer,                 Luis Kornblueh
- * Moritz Hanke,
- * Joerg Behrens
+ * Mathis Rosenhauer, Moritz Hanke, Joerg Behrens
+ * Deutsches Klimarechenzentrum GmbH
+ * Bundesstr. 45a
+ * 20146 Hamburg Germany
  *
- * Deutsches Klimarechenzentrum GmbH  Max-Planck-Institut fuer Meteorologie
- * Bundesstr. 45a                     Bundesstr. 53
- * 20146 Hamburg                      20146 Hamburg
- * Germany                            Germany
+ * Luis Kornblueh
+ * Max-Planck-Institut fuer Meteorologie
+ * Bundesstr. 53
+ * 20146 Hamburg
+ * Germany
  *
  * All rights reserved.
  *
