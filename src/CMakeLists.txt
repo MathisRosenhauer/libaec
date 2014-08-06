@@ -26,8 +26,30 @@ IF(UNIX)
 ENDIF(UNIX)
 
 INSTALL(FILES libaec.h szlib.h DESTINATION include)
-INSTALL(TARGETS aec sz aec_client
-  RUNTIME DESTINATION bin
-  LIBRARY DESTINATION lib
-  ARCHIVE DESTINATION lib
+IF(WIN32)
+  INSTALL(TARGETS aec sz
+    RUNTIME
+    DESTINATION bin
+    ARCHIVE
+    DESTINATION lib
+    COMPONENT libraries
+    )
+ELSE(WIN32)
+  INSTALL(TARGETS aec sz
+    LIBRARY
+    DESTINATION lib
+    ARCHIVE
+    DESTINATION lib
+    COMPONENT libraries
+    )
+ENDIF(WIN32)
+INSTALL(TARGETS aec_client
+  RUNTIME
+  DESTINATION bin
+  COMPONENT applications
   )
+INSTALL(FILES libaec.h szlib.h
+  DESTINATION include
+  COMPONENT headers
+  )
+SET(CPACK_COMPONENTS_ALL applications libraries headers)
