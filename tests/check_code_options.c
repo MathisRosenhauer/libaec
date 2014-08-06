@@ -23,8 +23,10 @@ int check_block_sizes(struct test_state *state, int id, int id_len)
                 return status;
 
             if ((state->cbuf[0] >> (8 - id_len)) != id) {
-                printf("%s: Unexpected block of size %i created ID:%x.\n",
-                       CHECK_FAIL, bs, state->cbuf[0] >> (8 - id_len));
+                printf(
+                    "%s: block of size %i created with ID:%x, expected %x.\n",
+                    CHECK_FAIL, bs, state->cbuf[0] >> (8 - id_len), id
+                    );
                 return 99;
             }
         }
@@ -36,7 +38,10 @@ int check_zero(struct test_state *state)
 {
     int status;
 
-    memset(state->ubuf, 0x55, state->buf_len);
+    if (state->strm->flags & AEC_DATA_PREPROCESS)
+        memset(state->ubuf, 0x55, state->buf_len);
+    else
+        memset(state->ubuf, 0, state->buf_len);
 
     printf("Checking zero blocks ... ");
     status = check_block_sizes(state, 0, state->id_len + 1);
@@ -54,13 +59,25 @@ int check_splitting(struct test_state *state, int k)
 
     size = state->bytes_per_sample;
 
-    for (tmp = state->ubuf;
-         tmp < state->ubuf + state->buf_len;
-         tmp += 4 * state->bytes_per_sample) {
-        state->out(tmp, state->xmin + (1ULL << (k - 1)) - 1, size);
-        state->out(tmp + size, state->xmin, size);
-        state->out(tmp + 2 * size, state->xmin + (1ULL << (k + 1)) - 1, size);
-        state->out(tmp + 3 * size, state->xmin, size);
+    if (state->strm->flags & AEC_DATA_PREPROCESS) {
+        for (tmp = state->ubuf;
+             tmp < state->ubuf + state->buf_len;
+             tmp += 4 * size) {
+            state->out(tmp, state->xmin + (1ULL << (k - 1)) - 1, size);
+            state->out(tmp + size, state->xmin, size);
+            state->out(tmp + 2 * size, state->xmin
+                       + (1ULL << (k + 1)) - 1, size);
+            state->out(tmp + 3 * size, state->xmin, size);
+        }
+    } else {
+        for (tmp = state->ubuf;
+             tmp < state->ubuf + state->buf_len;
+             tmp += 4 * size) {
+            state->out(tmp, 0, size);
+            state->out(tmp + size, (1ULL << k) - 1, size);
+            state->out(tmp + 2 * size, 0, size);
+            state->out(tmp + 3 * size, (1ULL << (k + 2)) - 1, size);
+        }
     }
 
     printf("Checking splitting with k=%i ... ", k);
@@ -81,7 +98,7 @@ int check_uncompressed(struct test_state *state)
 
     for (tmp = state->ubuf;
          tmp < state->ubuf + state->buf_len;
-         tmp += 2 * state->bytes_per_sample) {
+         tmp += 2 * size) {
         state->out(tmp, state->xmax, size);
         state->out(tmp + size, state->xmin, size);
     }
@@ -104,13 +121,24 @@ int check_fs(struct test_state *state)
 
     size = state->bytes_per_sample;
 
-    for (tmp = state->ubuf;
-         tmp < state->ubuf + state->buf_len;
-         tmp += 4 * state->bytes_per_sample) {
-        state->out(tmp, state->xmin + 2, size);
-        state->out(tmp + size, state->xmin, size);
-        state->out(tmp + 2 * size, state->xmin, size);
-        state->out(tmp + 3 * size, state->xmin, size);
+    if (state->strm->flags & AEC_DATA_PREPROCESS) {
+        for (tmp = state->ubuf;
+             tmp < state->ubuf + state->buf_len;
+             tmp += 4 * size) {
+            state->out(tmp, state->xmin + 2, size);
+            state->out(tmp + size, state->xmin, size);
+            state->out(tmp + 2 * size, state->xmin, size);
+            state->out(tmp + 3 * size, state->xmin, size);
+        }
+    } else {
+        for (tmp = state->ubuf;
+             tmp < state->ubuf + state->buf_len;
+             tmp += 4 * size) {
+            state->out(tmp, 0, size);
+            state->out(tmp + size, 0, size);
+            state->out(tmp + 2 * size, 0, size);
+            state->out(tmp + 3 * size, 4, size);
+        }
     }
 
     printf("Checking FS ... ");
@@ -129,17 +157,32 @@ int check_se(struct test_state *state)
 
     size = state->bytes_per_sample;
 
-    for (tmp = state->ubuf;
-         tmp < state->ubuf + state->buf_len;
-         tmp += 8 * size) {
-        state->out(tmp, 0, size);
-        state->out(tmp + size, 0, size);
-        state->out(tmp + 2 * size, 0, size);
-        state->out(tmp + 3 * size, 0, size);
-        state->out(tmp + 4 * size, 1, size);
-        state->out(tmp + 5 * size, 1, size);
-        state->out(tmp + 6 * size, 1, size);
-        state->out(tmp + 7 * size, 1, size);
+    if (state->strm->flags & AEC_DATA_PREPROCESS) {
+        for (tmp = state->ubuf;
+             tmp < state->ubuf + state->buf_len;
+             tmp += 8 * size) {
+            state->out(tmp, state->xmax - 1, size);
+            state->out(tmp + size, state->xmax - 1, size);
+            state->out(tmp + 2 * size, state->xmax - 1, size);
+            state->out(tmp + 3 * size, state->xmax - 1, size);
+            state->out(tmp + 4 * size, state->xmax, size);
+            state->out(tmp + 5 * size, state->xmax, size);
+            state->out(tmp + 6 * size, state->xmax, size);
+            state->out(tmp + 7 * size, state->xmax, size);
+        }
+    } else {
+        for (tmp = state->ubuf;
+             tmp < state->ubuf + state->buf_len;
+             tmp += 8 * size) {
+            state->out(tmp, 0, size);
+            state->out(tmp + size, 0, size);
+            state->out(tmp + 2 * size, 0, size);
+            state->out(tmp + 3 * size, 0, size);
+            state->out(tmp + 4 * size, 1, size);
+            state->out(tmp + 5 * size, 0, size);
+            state->out(tmp + 6 * size, 0, size);
+            state->out(tmp + 7 * size, 2, size);
+        }
     }
 
     printf("Checking Second Extension ... ");
@@ -194,16 +237,24 @@ int check_byte_orderings(struct test_state *state)
 {
     int status;
 
-    printf("----------------------------\n");
-    printf("Checking LSB first, unsigned\n");
-    printf("----------------------------\n");
+    printf("-----------------------------------\n");
+    printf("Checking no PP, LSB first, unsigned\n");
+    printf("-----------------------------------\n");
     status = check_bps(state);
     if (status)
         return status;
 
-    printf("--------------------------\n");
-    printf("Checking LSB first, signed\n");
-    printf("--------------------------\n");
+    printf("-----------------------------------\n");
+    printf("Checking PP, LSB first, unsigned\n");
+    printf("-----------------------------------\n");
+    state->strm->flags |= AEC_DATA_PREPROCESS;
+    status = check_bps(state);
+    if (status)
+        return status;
+
+    printf("-----------------------------------\n");
+    printf("Checking PP, LSB first, signed\n");
+    printf("-----------------------------------\n");
     state->strm->flags |= AEC_DATA_SIGNED;
 
     status = check_bps(state);
@@ -213,16 +264,16 @@ int check_byte_orderings(struct test_state *state)
     state->strm->flags &= ~AEC_DATA_SIGNED;
     state->strm->flags |= AEC_DATA_MSB;
 
-    printf("----------------------------\n");
-    printf("Checking MSB first, unsigned\n");
-    printf("----------------------------\n");
+    printf("-----------------------------------\n");
+    printf("Checking PP, MSB first, unsigned\n");
+    printf("-----------------------------------\n");
     status = check_bps(state);
     if (status)
         return status;
 
-    printf("--------------------------\n");
-    printf("Checking MSB first, signed\n");
-    printf("--------------------------\n");
+    printf("-----------------------------------\n");
+    printf("Checking PP, MSB first, signed\n");
+    printf("-----------------------------------\n");
     state->strm->flags |= AEC_DATA_SIGNED;
 
     status = check_bps(state);
@@ -249,7 +300,7 @@ int main (void)
         return 99;
     }
 
-    strm.flags = AEC_DATA_PREPROCESS;
+    strm.flags = 0;
     state.strm = &strm;
 
     printf("***************************\n");
