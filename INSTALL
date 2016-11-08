@@ -2,14 +2,25 @@
 Installation
 ============
 
-The most common installation procedure on Unix-like systems looks as
-follows.
+The installation procedure uses CMake, as follows:
 
 Unpack the tar archive and change into the unpacked directory.
 
-  ./configure
-  make check install
+  mkdir build
+  cd build
+  cmake ..  # CMAKE_INSTALL_PREFIX=~/.local
+  make install
 
+You can set options for compiling using the CMake GUI by replacing the cmake
+command with
+
+  cmake-gui ..
+
+or by setting the options manually, e.g.
+
+  cmake -DCMAKE_INSTALL_PREFIX=~/local ..
+
+in order to set the install prefix to ~/local
 
 =======================
 Intel compiler settings
@@ -26,12 +37,3 @@ On a 3.4 GHz E3-1240 v3 we see more than 400 MiB/s for encoding
 typical data.
 
 Using other SIMD instruction sets on older CPUs may also help.
-
-=======
-Windows
-=======
-
-As an alternative way to build libaec you can use CMake. CMake can
-also generate project files for Microsoft Visual Studio. This allows
-you to build AEC.DLL and SZIP.DLL which can be used with the Windows
-version of HDF5.
