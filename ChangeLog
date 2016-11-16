@@ -1,3 +1,7 @@
+2016-11-16  Mathis Rosenhauer  <rosenhauer@dkrz.de>
+
+	v1.0.0
+
 	Include CCSDS test data with libaec. See THANKS
 
 	Better compatibility with OSX for make check
