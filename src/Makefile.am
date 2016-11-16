@@ -1,4 +1,4 @@
-AM_CFLAGS = @CFLAG_VISIBILITY@
+AM_CFLAGS = $(CFLAG_VISIBILITY)
 AM_CPPFLAGS = -DBUILDING_LIBAEC
 lib_LTLIBRARIES = libaec.la libsz.la
 libaec_la_SOURCES = encode.c encode_accessors.c decode.c \
