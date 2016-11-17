@@ -15,7 +15,7 @@ filesize () {
 
 decode () {
     $AEC -d $3 $1 test.dat
-    cmp -n $(filesize $2) $2 test.dat
+    dd if=test.dat bs=1 count=$(filesize $2) | cmp $2 -
 }
 
 code () {
