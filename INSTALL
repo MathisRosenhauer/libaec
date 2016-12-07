@@ -18,6 +18,12 @@ location:
 Installation
 ============
 
+## General considerations
+
+Libaec achieves the best performance on 64 bit systems. The library
+will work correctly on 32 bit systems but encoding and decoding
+performance will be much lower.
+
 ## Installation from source code release with configure
 
 The most common installation procedure on Unix-like systems looks as
