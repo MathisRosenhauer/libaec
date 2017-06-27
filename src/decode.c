@@ -229,7 +229,6 @@ static inline uint32_t direct_get(struct aec_stream *strm, int n)
 
     struct internal_state *state = strm->state;
     int b;
-
     if (state->bitp < n)
     {
         b = (63 - state->bitp) >> 3;
@@ -308,6 +307,9 @@ static inline uint32_t direct_get_fs(struct aec_stream *strm)
         state->acc = 0;
 
     while (state->acc == 0) {
+        if (strm->avail_in < 7)
+            return 0;
+
         state->acc = (state->acc << 56)
             | ((uint64_t)strm->next_in[0] << 48)
             | ((uint64_t)strm->next_in[1] << 40)
@@ -475,6 +477,9 @@ static int m_split(struct aec_stream *strm)
             state->rsip[i] = direct_get_fs(strm) << k;
 
         if (k) {
+            if (strm->avail_in < (k * strm->block_size) / 8 + 9)
+                return M_ERROR;
+
             for (i = state->ref; i < strm->block_size; i++)
                 *state->rsip++ += direct_get(strm, k);
         } else {
@@ -566,6 +571,8 @@ static int m_se_decode(struct aec_stream *strm)
         if (fs_ask(strm) == 0)
             return M_EXIT;
         m = state->fs;
+        if (m > SE_TABLE_SIZE)
+            return M_ERROR;
         d1 = m - state->se_table[2 * m + 1];
 
         if ((state->i & 1) == 0) {
@@ -589,7 +596,8 @@ static int m_se_decode(struct aec_stream *strm)
 static int m_se(struct aec_stream *strm)
 {
     uint32_t i;
-    int32_t m, d1;
+    uint32_t m;
+    int32_t d1;
     struct internal_state *state = strm->state;
 
     if (BUFFERSPACE(strm)) {
@@ -597,6 +605,10 @@ static int m_se(struct aec_stream *strm)
 
         while (i < strm->block_size) {
             m = direct_get_fs(strm);
+
+            if (m > SE_TABLE_SIZE)
+                return M_ERROR;
+
             d1 = m - state->se_table[2 * m + 1];
 
             if ((i & 1) == 0) {
@@ -763,7 +775,7 @@ int aec_decode_init(struct aec_stream *strm)
     }
 
     state->in_blklen = (strm->block_size * strm->bits_per_sample
-                        + state->id_len) / 8 + 9;
+                        + state->id_len) / 8 + 16;
 
     modi = 1UL << state->id_len;
     state->id_table = malloc(modi * sizeof(int (*)(struct aec_stream *)));

@@ -63,6 +63,8 @@
 
 #define MIN(a, b) (((a) < (b))? (a): (b))
 
+#define SE_TABLE_SIZE 90
+
 struct aec_stream;
 
 struct internal_state {
@@ -89,7 +91,7 @@ struct internal_state {
     uint32_t xmax;
 
      /* length of uncompressed input block should be the longest
-        possible block */
+        legal block */
     uint32_t in_blklen;
 
     /* length of output block in bytes */
@@ -129,7 +131,7 @@ struct internal_state {
     uint32_t *flush_start;
 
     /* table for decoding second extension option */
-    int se_table[182];
+    int se_table[2 * (SE_TABLE_SIZE + 1)];
 } decode_state;
 
 #endif /* DECODE_H */
