@@ -52,6 +52,10 @@
 
 #include <stddef.h>
 
+#ifdef __cplusplus
+extern "C"{
+#endif
+
 #if BUILDING_LIBAEC && HAVE_VISIBILITY
 #  define LIBAEC_DLL_EXPORTED __attribute__((__visibility__("default")))
 #elif BUILDING_LIBAEC && defined _MSC_VER
@@ -164,5 +168,9 @@ LIBAEC_DLL_EXPORTED int aec_decode_end(struct aec_stream *strm);
 /***************************************************************/
 LIBAEC_DLL_EXPORTED int aec_buffer_encode(struct aec_stream *strm);
 LIBAEC_DLL_EXPORTED int aec_buffer_decode(struct aec_stream *strm);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* LIBAEC_H */
