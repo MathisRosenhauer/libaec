@@ -1,59 +1,49 @@
-SET(libaec_SRCS encode.c encode_accessors.c decode.c)
-ADD_LIBRARY(aec ${LIB_TYPE} ${libaec_SRCS})
-SET_TARGET_PROPERTIES(aec PROPERTIES
-  VERSION 0.0.6 SOVERSION 0
-  )
-ADD_LIBRARY(sz ${LIB_TYPE} sz_compat.c)
-SET_TARGET_PROPERTIES(sz PROPERTIES
-  VERSION 2.0.1 SOVERSION 2
-  )
+add_library(aec ${LIB_TYPE} ${libaec_SRCS})
+set_target_properties(aec PROPERTIES VERSION 0.0.6 SOVERSION 0)
+add_library(sz ${LIB_TYPE} sz_compat.c)
+set_target_properties(sz PROPERTIES VERSION 2.0.1 SOVERSION 2)
 
-TARGET_LINK_LIBRARIES(sz aec)
-IF(WIN32 AND BUILD_SHARED_LIBS)
-  SET_TARGET_PROPERTIES (aec PROPERTIES DEFINE_SYMBOL "BUILDING_LIBAEC")
-  SET_TARGET_PROPERTIES (sz PROPERTIES DEFINE_SYMBOL "BUILDING_LIBAEC")
-  SET_TARGET_PROPERTIES(sz PROPERTIES OUTPUT_NAME "szip")
-ENDIF(WIN32 AND BUILD_SHARED_LIBS)
+target_link_libraries(sz aec)
+if(WIN32 AND BUILD_SHARED_LIBS)
+  set_target_properties (aec PROPERTIES DEFINE_SYMBOL "BUILDING_LIBAEC")
+  set_target_properties (sz PROPERTIES DEFINE_SYMBOL "BUILDING_LIBAEC")
+  set_target_properties(sz PROPERTIES OUTPUT_NAME "szip")
+endif(WIN32 AND BUILD_SHARED_LIBS)
 
-ADD_EXECUTABLE(aec_client aec.c)
-SET_TARGET_PROPERTIES(aec_client PROPERTIES OUTPUT_NAME "aec")
-TARGET_LINK_LIBRARIES(aec_client aec)
+add_executable(aec_client aec.c)
+set_target_properties(aec_client PROPERTIES OUTPUT_NAME "aec")
+target_link_libraries(aec_client aec)
 
-IF(UNIX)
-  ADD_EXECUTABLE(utime EXCLUDE_FROM_ALL utime.c)
-  ADD_CUSTOM_TARGET(bench
+if(UNIX)
+  add_executable(utime EXCLUDE_FROM_ALL utime.c)
+  add_custom_target(bench
     COMMAND ${CMAKE_SOURCE_DIR}/src/benc.sh ${CMAKE_SOURCE_DIR}/data/typical.rz
     COMMAND ${CMAKE_SOURCE_DIR}/src/bdec.sh
-    DEPENDS aec_client utime
-    )
-ENDIF(UNIX)
+    DEPENDS aec_client utime)
+endif(UNIX)
 
-INCLUDE(GNUInstallDirs)
-IF(WIN32)
-  INSTALL(TARGETS aec sz
+include(GNUInstallDirs)
+if(WIN32)
+  install(TARGETS aec sz
     RUNTIME
     DESTINATION bin
     ARCHIVE
     DESTINATION lib
-    COMPONENT libraries
-    )
-ELSE(WIN32)
-  INSTALL(TARGETS aec sz
+    COMPONENT libraries)
+else(WIN32)
+  install(TARGETS aec sz
     LIBRARY
     DESTINATION ${CMAKE_INSTALL_LIBDIR}
     ARCHIVE
     DESTINATION ${CMAKE_INSTALL_LIBDIR}
-    COMPONENT libraries
-    )
-ENDIF(WIN32)
-INSTALL(FILES libaec.h szlib.h
+    COMPONENT libraries)
+endif(WIN32)
+install(FILES libaec.h szlib.h
   DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
-  COMPONENT headers
-  )
-INSTALL(TARGETS aec_client
+  COMPONENT headers)
+install(TARGETS aec_client
   RUNTIME
   DESTINATION ${CMAKE_INSTALL_BINDIR}
-  COMPONENT applications
-  )
+  COMPONENT applications)
 
-SET(CPACK_COMPONENTS_ALL applications libraries headers)
+set(CPACK_COMPONENTS_ALL applications libraries headers)
