@@ -9,6 +9,7 @@ int check_block_sizes(struct test_state *state, int id, int id_len)
 {
     int bs, status, rsi, max_rsi;
 
+    state->id = id;
     for (bs = 8; bs <= 64; bs *= 2) {
         state->strm->block_size = bs;
 
@@ -282,11 +283,16 @@ int check_byte_orderings(struct test_state *state)
     return 0;
 }
 
-int main (void)
+int main(int argc, char *argv[])
 {
     int status;
     struct aec_stream strm;
     struct test_state state;
+
+    if (argc > 1 && strncmp(argv[1], "-d", 2) == 0)
+        state.dump = 1;
+    else
+        state.dump = 0;
 
     state.buf_len = state.ibuf_len = BUF_SIZE;
     state.cbuf_len = 2 * BUF_SIZE;

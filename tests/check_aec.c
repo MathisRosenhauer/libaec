@@ -202,6 +202,10 @@ int encode_decode_small(struct test_state *state)
 int encode_decode_large(struct test_state *state)
 {
     int status, i;
+    char fbase[1024];
+    char fname[1024];
+    FILE *fp;
+    int bflags;
     size_t to;
     struct aec_stream *strm = state->strm;
 
@@ -215,6 +219,31 @@ int encode_decode_large(struct test_state *state)
         printf("Init failed.\n");
         return 99;
     }
+    if (state->dump) {
+        snprintf(fbase, sizeof(fbase), "BPS%02iID%iBS%02iRSI%04iFLG%04i",
+                 strm->bits_per_sample,
+                 state->id,
+                 strm->block_size,
+                 strm->rsi,
+                 strm->flags);
+        snprintf(fname, sizeof(fname), "%s.dat", fbase);
+        if ((fp = fopen(fname, "wb")) == NULL) {
+            fprintf(stderr, "ERROR: cannot open dump file %s\n", fname);
+            return 99;
+        }
+        fputc(strm->bits_per_sample, fp);
+        bflags = strm->block_size >> 8;
+        if (strm->flags | AEC_DATA_MSB)
+            bflags |= 0x80;
+        if (strm->flags | AEC_DATA_SIGNED)
+            bflags |= 0x40;
+        if (strm->flags | AEC_DATA_3BYTE)
+            bflags |= 0x10;
+        bflags |= 0x20; /* encode */
+        fputc(bflags, fp);
+        fwrite(strm->next_in, strm->avail_in, 1, fp);
+        fclose(fp);
+    }
 
     status = aec_encode(strm, AEC_FLUSH);
     if (status != AEC_OK) {
@@ -223,6 +252,19 @@ int encode_decode_large(struct test_state *state)
     }
 
     aec_encode_end(strm);
+
+    if (state->dump) {
+        snprintf(fname, sizeof(fname), "%s.rz", fbase);
+        if ((fp = fopen(fname, "wb")) == NULL) {
+            fprintf(stderr, "ERROR: cannot open dump file %s\n", fname);
+            return 99;
+        }
+        fputc(strm->bits_per_sample, fp);
+        bflags &= ~0x20;
+        fputc(bflags, fp);
+        fwrite(state->cbuf, strm->total_out, 1, fp);
+        fclose(fp);
+    }
 
     strm->avail_in = strm->total_out;
     strm->avail_out = state->buf_len;

@@ -19,7 +19,9 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *Data, size_t Size) {
         strm.flags |= AEC_DATA_MSB;
     if (Data[1] & 0x40)
         strm.flags |= AEC_DATA_SIGNED;
-    if (strm.bits_per_sample <= 24 && strm.bits_per_sample > 16)
+    if (strm.bits_per_sample <= 24 &&
+        strm.bits_per_sample > 16 &&
+        Data[1] & 0x10)
         strm.flags |= AEC_DATA_3BYTE;
     strm.next_in = (unsigned char *)(Data + 2);
     strm.avail_in = Size - 2;

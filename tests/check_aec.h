@@ -4,6 +4,7 @@
 
 struct test_state {
     int (* codec)(struct test_state *state);
+    int id;
     int id_len;
     int bytes_per_sample;
     unsigned char *ubuf;
@@ -15,6 +16,7 @@ struct test_state {
     long long int xmax;
     long long int xmin;
     void (*out)(unsigned char *dest, unsigned long long int val, int size);
+    int dump; /* dump buffer to file for fuzzing corpus */
     struct aec_stream *strm;
 };
 
