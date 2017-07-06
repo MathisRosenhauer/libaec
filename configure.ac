@@ -8,7 +8,7 @@ AC_CONFIG_HEADERS(config/config.h)
 
 LT_INIT
 gl_VISIBILITY
-AM_INIT_AUTOMAKE
+AM_INIT_AUTOMAKE([foreign])
 
 # Checks for programs.
 AC_PROG_CC
