@@ -196,27 +196,12 @@ FLUSH(lsb_24)
 FLUSH(lsb_16)
 FLUSH(8)
 
-static inline void check_rsi_end(struct aec_stream *strm)
-{
-    /**
-       Flush output if end of RSI reached
-     */
-    struct internal_state *state = strm->state;
-
-    if (state->rsi_size == RSI_USED(state)) {
-        state->flush_output(strm);
-        state->flush_start = state->rsi_buffer;
-        state->rsip = state->rsi_buffer;
-    }
-}
-
 static inline void put_sample(struct aec_stream *strm, uint32_t s)
 {
     struct internal_state *state = strm->state;
 
     *state->rsip++ = s;
     strm->avail_out -= state->bytes_per_sample;
-    check_rsi_end(strm);
 }
 
 static inline uint32_t direct_get(struct aec_stream *strm, int n)
@@ -405,20 +390,29 @@ static int m_id(struct aec_stream *strm)
 {
     struct internal_state *state = strm->state;
 
+    if (state->rsi_size == RSI_USED(state)) {
+        state->flush_output(strm);
+        state->flush_start = state->rsi_buffer;
+        state->rsip = state->rsi_buffer;
+    }
+
     if (state->rsip == state->rsi_buffer) {
-        if(strm->flags & AEC_PAD_RSI)
+        if (strm->flags & AEC_PAD_RSI)
             state->bitp -= state->bitp % 8;
-        if (state->pp)
+        if (state->pp) {
             state->ref = 1;
+            state->encoded_block_size = strm->block_size - 1;
+        }
     } else {
         state->ref = 0;
+        state->encoded_block_size = strm->block_size;
     }
+
     if (bits_ask(strm, state->id_len) == 0)
         return M_EXIT;
     state->id = bits_get(strm, state->id_len);
     bits_drop(strm, state->id_len);
     state->mode = state->id_table[state->id];
-
     return M_CONTINUE;
 }
 
@@ -438,7 +432,6 @@ static int m_split_output(struct aec_stream *strm)
         bits_drop(strm, k);
     } while(++state->i < state->n);
 
-    check_rsi_end(strm);
     state->mode = m_id;
     return M_CONTINUE;
 }
@@ -464,45 +457,39 @@ static int m_split_fs(struct aec_stream *strm)
 static int m_split(struct aec_stream *strm)
 {
     size_t i;
+    size_t binary_part;
     int k;
     struct internal_state *state = strm->state;
 
     if (BUFFERSPACE(strm)) {
         k = state->id - 1;
+        binary_part = (k * state->encoded_block_size) / 8 + 9;
 
         if (state->ref)
             *state->rsip++ = direct_get(strm, strm->bits_per_sample);
 
-        for (i = 0; i < strm->block_size - state->ref; i++)
+        for (i = 0; i < state->encoded_block_size; i++)
             state->rsip[i] = direct_get_fs(strm) << k;
 
         if (k) {
-            if (strm->avail_in < (k * strm->block_size) / 8 + 9)
+            if (strm->avail_in < binary_part)
                 return M_ERROR;
 
-            for (i = state->ref; i < strm->block_size; i++)
+            for (i = 0; i < state->encoded_block_size; i++)
                 *state->rsip++ += direct_get(strm, k);
         } else {
-            state->rsip += strm->block_size - state->ref;
+            state->rsip += state->encoded_block_size;
         }
 
         strm->avail_out -= state->out_blklen;
-        check_rsi_end(strm);
-
         state->mode = m_id;
-        return M_CONTINUE;
-    }
-
-    if (state->ref) {
-        if (copysample(strm) == 0)
-            return M_EXIT;
-        state->n = strm->block_size - 1;
     } else {
-        state->n = strm->block_size;
+        if (state->ref && (copysample(strm) == 0))
+            return M_EXIT;
+        state->n = state->encoded_block_size;
+        state->i = 0;
+        state->mode = m_split_fs;
     }
-
-    state->i = 0;
-    state->mode = m_split_fs;
     return M_CONTINUE;
 }
 
@@ -537,22 +524,16 @@ static int m_zero_block(struct aec_stream *strm)
         zero_blocks--;
     }
 
-    if (state->ref)
-        i = zero_blocks * strm->block_size - 1;
-    else
-        i = zero_blocks * strm->block_size;
-
+    i = zero_blocks * strm->block_size - state->ref;
     zero_bytes = i * state->bytes_per_sample;
 
-    if (strm->avail_out >= zero_bytes) {
-        if (state->rsi_size - RSI_USED(state) < i)
-            return M_ERROR;
+    if (state->rsi_size - RSI_USED(state) < i)
+        return M_ERROR;
 
+    if (strm->avail_out >= zero_bytes) {
         memset(state->rsip, 0, i * sizeof(uint32_t));
         state->rsip += i;
         strm->avail_out -= zero_bytes;
-        check_rsi_end(strm);
-
         state->mode = m_id;
         return M_CONTINUE;
     }
@@ -619,11 +600,10 @@ static int m_se(struct aec_stream *strm)
             i++;
         }
         state->mode = m_id;
-        return M_CONTINUE;
+    } else {
+        state->mode = m_se_decode;
+        state->i = state->ref;
     }
-
-    state->mode = m_se_decode;
-    state->i = state->ref;
     return M_CONTINUE;
 }
 
@@ -634,7 +614,7 @@ static int m_low_entropy_ref(struct aec_stream *strm)
     if (state->ref && copysample(strm) == 0)
         return M_EXIT;
 
-    if(state->id == 1) {
+    if (state->id == 1) {
         state->mode = m_se;
         return M_CONTINUE;
     }
@@ -677,14 +657,11 @@ static int m_uncomp(struct aec_stream *strm)
         for (i = 0; i < strm->block_size; i++)
             *state->rsip++ = direct_get(strm, strm->bits_per_sample);
         strm->avail_out -= state->out_blklen;
-        check_rsi_end(strm);
-
         state->mode = m_id;
-        return M_CONTINUE;
+    } else {
+        state->i = strm->block_size;
+        state->mode = m_uncomp_copy;
     }
-
-    state->i = strm->block_size;
-    state->mode = m_uncomp_copy;
     return M_CONTINUE;
 }
 
@@ -736,8 +713,7 @@ int aec_decode_init(struct aec_stream *strm)
             else
                 state->flush_output = flush_lsb_32;
         }
-        state->out_blklen = strm->block_size
-            * state->bytes_per_sample;
+        state->out_blklen = strm->block_size * state->bytes_per_sample;
     }
     else if (strm->bits_per_sample > 8) {
         state->bytes_per_sample = 2;
@@ -793,7 +769,9 @@ int aec_decode_init(struct aec_stream *strm)
     if (state->rsi_buffer == NULL)
         return AEC_MEM_ERROR;
 
+    state->pp = strm->flags & AEC_DATA_PREPROCESS;
     state->ref = 0;
+    state->encoded_block_size = strm->block_size;
     strm->total_in = 0;
     strm->total_out = 0;
 
@@ -801,7 +779,6 @@ int aec_decode_init(struct aec_stream *strm)
     state->flush_start = state->rsi_buffer;
     state->bitp = 0;
     state->fs = 0;
-    state->pp = strm->flags & AEC_DATA_PREPROCESS;
     state->mode = m_id;
     return AEC_OK;
 }

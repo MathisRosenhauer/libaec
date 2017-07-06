@@ -112,6 +112,9 @@ struct internal_state {
     /* 1 if current block has reference sample */
     int ref;
 
+    /* block_size minus reference sample if present */
+    uint32_t encoded_block_size;
+
     /* 1 if postprocessor has to be used */
     int pp;
 
