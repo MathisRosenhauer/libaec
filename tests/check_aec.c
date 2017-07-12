@@ -5,17 +5,13 @@
 
 static void out_lsb(unsigned char *dest, unsigned long long int val, int size)
 {
-    int i;
-
-    for (i = 0; i < size; i++)
+    for (int i = 0; i < size; i++)
         dest[i] = (unsigned char)(val >> (8 * i));
 }
 
 static void out_msb(unsigned char *dest, unsigned long long int val, int size)
 {
-    int i;
-
-    for (i = 0; i < size; i++)
+    for (int i = 0; i < size; i++)
         dest[i] = (unsigned char)(val >> (8 * (size - 1 - i)));
 }
 
@@ -58,12 +54,11 @@ int update_state(struct test_state *state)
 
 int encode_decode_small(struct test_state *state)
 {
-    int status, i;
     size_t compressed_size;
     size_t n_in, avail_in, avail_out, total_out;
     struct aec_stream *strm = state->strm;
 
-    status = aec_encode_init(strm);
+    int status = aec_encode_init(strm);
     if (status != AEC_OK) {
         printf("Init failed.\n");
         return 99;
@@ -175,19 +170,19 @@ int encode_decode_small(struct test_state *state)
         printf("\n%s: Uncompressed output differs from input.\n", CHECK_FAIL);
 
         printf("\nuncompressed buf");
-        for (i = 0; i < 80; i++) {
+        for (int i = 0; i < 80; i++) {
             if (i % 8 == 0)
                 printf("\n");
             printf("%02x ", state->ubuf[i]);
         }
         printf("\n\ncompressed buf len %li", compressed_size);
-        for (i = 0; i < 80; i++) {
+        for (int i = 0; i < 80; i++) {
             if (i % 8 == 0)
                 printf("\n");
             printf("%02x ", state->cbuf[i]);
         }
         printf("\n\ndecompressed buf");
-        for (i = 0; i < 80; i++) {
+        for (int i = 0; i < 80; i++) {
             if (i % 8 == 0)
                 printf("\n%04i ", i);
             printf("%02x ", state->obuf[i]);
@@ -201,12 +196,10 @@ int encode_decode_small(struct test_state *state)
 
 int encode_decode_large(struct test_state *state)
 {
-    int status, i;
-    char fbase[1024];
-    char fname[1024];
-    FILE *fp;
+    int status;
     int bflags;
     size_t to;
+    char fbase[1024];
     struct aec_stream *strm = state->strm;
 
     strm->avail_in = state->ibuf_len;
@@ -220,6 +213,8 @@ int encode_decode_large(struct test_state *state)
         return 99;
     }
     if (state->dump) {
+        char fname[1024];
+        FILE *fp;
         snprintf(fbase, sizeof(fbase), "BPS%02iID%iBS%02iRSI%04iFLG%04i",
                  strm->bits_per_sample,
                  state->id,
@@ -254,6 +249,8 @@ int encode_decode_large(struct test_state *state)
     aec_encode_end(strm);
 
     if (state->dump) {
+        char fname[1024];
+        FILE *fp;
         snprintf(fname, sizeof(fname), "%s.rz", fbase);
         if ((fp = fopen(fname, "wb")) == NULL) {
             fprintf(stderr, "ERROR: cannot open dump file %s\n", fname);
@@ -288,19 +285,19 @@ int encode_decode_large(struct test_state *state)
         printf("\n%s: Uncompressed output differs from input.\n", CHECK_FAIL);
 
         printf("\nuncompressed buf");
-        for (i = 0; i < 80; i++) {
+        for (int i = 0; i < 80; i++) {
             if (i % 8 == 0)
                 printf("\n");
             printf("%02x ", state->ubuf[i]);
         }
         printf("\n\ncompressed buf len %li", to);
-        for (i = 0; i < 80; i++) {
+        for (int i = 0; i < 80; i++) {
             if (i % 8 == 0)
                 printf("\n");
             printf("%02x ", state->cbuf[i]);
         }
         printf("\n\ndecompressed buf");
-        for (i = 0; i < 80; i++) {
+        for (int i = 0; i < 80; i++) {
             if (i % 8 == 0)
                 printf("\n");
             printf("%02x ", state->obuf[i]);

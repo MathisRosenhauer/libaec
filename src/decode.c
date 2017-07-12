@@ -213,10 +213,9 @@ static inline uint32_t direct_get(struct aec_stream *strm, int n)
      */
 
     struct internal_state *state = strm->state;
-    int b;
     if (state->bitp < n)
     {
-        b = (63 - state->bitp) >> 3;
+        int b = (63 - state->bitp) >> 3;
         if (b == 6) {
             state->acc = (state->acc << 48)
                 | ((uint64_t)strm->next_in[0] << 40)
@@ -279,11 +278,6 @@ static inline uint32_t direct_get_fs(struct aec_stream *strm)
      */
 
     uint32_t fs = 0;
-#if HAVE_BSR64
-    unsigned long i;
-#else
-    int i;
-#endif
     struct internal_state *state = strm->state;
 
     if (state->bitp)
@@ -313,11 +307,12 @@ static inline uint32_t direct_get_fs(struct aec_stream *strm)
 #define __has_builtin(x) 0  /* Compatibility with non-clang compilers. */
 #endif
 #if HAVE_DECL___BUILTIN_CLZLL || __has_builtin(__builtin_clzll)
-    i = 63 - __builtin_clzll(state->acc);
+    int i = 63 - __builtin_clzll(state->acc);
 #elif HAVE_BSR64
+    unsigned long i;
     _BitScanReverse64(&i, state->acc);
 #else
-    i = state->bitp - 1;
+    int i = state->bitp - 1;
     while ((state->acc & (UINT64_C(1) << i)) == 0)
         i--;
 #endif
@@ -437,7 +432,7 @@ static int m_split_output(struct aec_stream *strm)
             state->rsip++;
         strm->avail_out -= state->bytes_per_sample;
         bits_drop(strm, k);
-    } while(++state->i < state->n);
+    } while(++state->sample_counter < state->encoded_block_size);
 
     state->mode = m_next_cds;
     return M_CONTINUE;
@@ -451,11 +446,11 @@ static int m_split_fs(struct aec_stream *strm)
     do {
         if (fs_ask(strm) == 0)
             return M_EXIT;
-        state->rsip[state->i] = state->fs << k;
+        state->rsip[state->sample_counter] = state->fs << k;
         fs_drop(strm);
-    } while(++state->i < state->n);
+    } while(++state->sample_counter < state->encoded_block_size);
 
-    state->i = 0;
+    state->sample_counter = 0;
     state->mode = m_split_output;
 
     return M_CONTINUE;
@@ -463,26 +458,23 @@ static int m_split_fs(struct aec_stream *strm)
 
 static int m_split(struct aec_stream *strm)
 {
-    size_t i;
-    size_t binary_part;
-    int k;
     struct internal_state *state = strm->state;
 
     if (BUFFERSPACE(strm)) {
-        k = state->id - 1;
-        binary_part = (k * state->encoded_block_size) / 8 + 9;
+        int k = state->id - 1;
+        size_t binary_part = (k * state->encoded_block_size) / 8 + 9;
 
         if (state->ref)
             *state->rsip++ = direct_get(strm, strm->bits_per_sample);
 
-        for (i = 0; i < state->encoded_block_size; i++)
+        for (size_t i = 0; i < state->encoded_block_size; i++)
             state->rsip[i] = direct_get_fs(strm) << k;
 
         if (k) {
             if (strm->avail_in < binary_part)
                 return M_ERROR;
 
-            for (i = 0; i < state->encoded_block_size; i++)
+            for (size_t i = 0; i < state->encoded_block_size; i++)
                 *state->rsip++ += direct_get(strm, k);
         } else {
             state->rsip += state->encoded_block_size;
@@ -493,8 +485,7 @@ static int m_split(struct aec_stream *strm)
     } else {
         if (state->ref && (copysample(strm) == 0))
             return M_EXIT;
-        state->n = state->encoded_block_size;
-        state->i = 0;
+        state->sample_counter = 0;
         state->mode = m_split_fs;
     }
     return M_CONTINUE;
@@ -508,7 +499,7 @@ static int m_zero_output(struct aec_stream *strm)
         if (strm->avail_out < state->bytes_per_sample)
             return M_EXIT;
         put_sample(strm, 0);
-    } while(--state->i);
+    } while(--state->sample_counter);
 
     state->mode = m_next_cds;
     return M_CONTINUE;
@@ -516,46 +507,48 @@ static int m_zero_output(struct aec_stream *strm)
 
 static int m_zero_block(struct aec_stream *strm)
 {
-    uint32_t i, zero_blocks, b, zero_bytes;
     struct internal_state *state = strm->state;
+    uint32_t zero_blocks;
+    uint32_t zero_samples;
+    uint32_t zero_bytes;
 
     if (fs_ask(strm) == 0)
         return M_EXIT;
+
     zero_blocks = state->fs + 1;
     fs_drop(strm);
 
     if (zero_blocks == ROS) {
-        b = (int)RSI_USED_SIZE(state) / strm->block_size;
+        int b = (int)RSI_USED_SIZE(state) / strm->block_size;
         zero_blocks = MIN(strm->rsi - b, 64 - (b % 64));
     } else if (zero_blocks > ROS) {
         zero_blocks--;
     }
 
-    i = zero_blocks * strm->block_size - state->ref;
-    zero_bytes = i * state->bytes_per_sample;
-
-    if (state->rsi_size - RSI_USED_SIZE(state) < i)
+    zero_samples = zero_blocks * strm->block_size - state->ref;
+    if (state->rsi_size - RSI_USED_SIZE(state) < zero_samples)
         return M_ERROR;
 
+    zero_bytes = zero_samples * state->bytes_per_sample;
     if (strm->avail_out >= zero_bytes) {
-        memset(state->rsip, 0, i * sizeof(uint32_t));
-        state->rsip += i;
+        memset(state->rsip, 0, zero_samples * sizeof(uint32_t));
+        state->rsip += zero_samples;
         strm->avail_out -= zero_bytes;
         state->mode = m_next_cds;
-        return M_CONTINUE;
+    } else {
+        state->sample_counter = zero_samples;
+        state->mode = m_zero_output;
     }
-
-    state->i = i;
-    state->mode = m_zero_output;
     return M_CONTINUE;
 }
 
 static int m_se_decode(struct aec_stream *strm)
 {
-    int32_t m, d1;
     struct internal_state *state = strm->state;
 
-    while(state->i < strm->block_size) {
+    while(state->sample_counter < strm->block_size) {
+        int32_t m;
+        int32_t d1;
         if (fs_ask(strm) == 0)
             return M_EXIT;
         m = state->fs;
@@ -563,17 +556,17 @@ static int m_se_decode(struct aec_stream *strm)
             return M_ERROR;
         d1 = m - state->se_table[2 * m + 1];
 
-        if ((state->i & 1) == 0) {
+        if ((state->sample_counter & 1) == 0) {
             if (strm->avail_out < state->bytes_per_sample)
                 return M_EXIT;
             put_sample(strm, state->se_table[2 * m] - d1);
-            state->i++;
+            state->sample_counter++;
         }
 
         if (strm->avail_out < state->bytes_per_sample)
             return M_EXIT;
         put_sample(strm, d1);
-        state->i++;
+        state->sample_counter++;
         fs_drop(strm);
     }
 
@@ -583,16 +576,14 @@ static int m_se_decode(struct aec_stream *strm)
 
 static int m_se(struct aec_stream *strm)
 {
-    uint32_t i;
-    uint32_t m;
-    int32_t d1;
     struct internal_state *state = strm->state;
 
     if (BUFFERSPACE(strm)) {
-        i = state->ref;
+        uint32_t i = state->ref;
 
         while (i < strm->block_size) {
-            m = direct_get_fs(strm);
+            uint32_t m = direct_get_fs(strm);
+            int32_t d1;
 
             if (m > SE_TABLE_SIZE)
                 return M_ERROR;
@@ -609,7 +600,7 @@ static int m_se(struct aec_stream *strm)
         state->mode = m_next_cds;
     } else {
         state->mode = m_se_decode;
-        state->i = state->ref;
+        state->sample_counter = state->ref;
     }
     return M_CONTINUE;
 }
@@ -621,12 +612,10 @@ static int m_low_entropy_ref(struct aec_stream *strm)
     if (state->ref && copysample(strm) == 0)
         return M_EXIT;
 
-    if (state->id == 1) {
+    if (state->id == 1)
         state->mode = m_se;
-        return M_CONTINUE;
-    }
-
-    state->mode = m_zero_block;
+    else
+        state->mode = m_zero_block;
     return M_CONTINUE;
 }
 
@@ -649,7 +638,7 @@ static int m_uncomp_copy(struct aec_stream *strm)
     do {
         if (copysample(strm) == 0)
             return M_EXIT;
-    } while(--state->i);
+    } while(--state->sample_counter);
 
     state->mode = m_next_cds;
     return M_CONTINUE;
@@ -657,16 +646,15 @@ static int m_uncomp_copy(struct aec_stream *strm)
 
 static int m_uncomp(struct aec_stream *strm)
 {
-    size_t i;
     struct internal_state *state = strm->state;
 
     if (BUFFERSPACE(strm)) {
-        for (i = 0; i < strm->block_size; i++)
+        for (size_t i = 0; i < strm->block_size; i++)
             *state->rsip++ = direct_get(strm, strm->bits_per_sample);
         strm->avail_out -= state->out_blklen;
         state->mode = m_next_cds;
     } else {
-        state->i = strm->block_size;
+        state->sample_counter = strm->block_size;
         state->mode = m_uncomp_copy;
     }
     return M_CONTINUE;
@@ -674,12 +662,10 @@ static int m_uncomp(struct aec_stream *strm)
 
 static void create_se_table(int *table)
 {
-    int i, j, k, ms;
-
-    k = 0;
-    for (i = 0; i < 13; i++) {
-        ms = k;
-        for (j = 0; j <= i; j++) {
+    int k = 0;
+    for (int i = 0; i < 13; i++) {
+        int ms = k;
+        for (int j = 0; j <= i; j++) {
             table[2 * k] = i;
             table[2 * k + 1] = ms;
             k++;
@@ -689,7 +675,6 @@ static void create_se_table(int *table)
 
 int aec_decode_init(struct aec_stream *strm)
 {
-    int i, modi;
     struct internal_state *state;
 
     if (strm->bits_per_sample > 32 || strm->bits_per_sample == 0)
@@ -760,13 +745,13 @@ int aec_decode_init(struct aec_stream *strm)
     state->in_blklen = (strm->block_size * strm->bits_per_sample
                         + state->id_len) / 8 + 16;
 
-    modi = 1UL << state->id_len;
+    int modi = 1UL << state->id_len;
     state->id_table = malloc(modi * sizeof(int (*)(struct aec_stream *)));
     if (state->id_table == NULL)
         return AEC_MEM_ERROR;
 
     state->id_table[0] = m_low_entropy;
-    for (i = 1; i < modi - 1; i++) {
+    for (int i = 1; i < modi - 1; i++) {
         state->id_table[i] = m_split;
     }
     state->id_table[modi - 1] = m_uncomp;
@@ -806,12 +791,11 @@ int aec_decode(struct aec_stream *strm, int flush)
        of the states are called. Inspired by zlib.
     */
 
-    struct internal_state *state = strm->state;
-    int status;
-
     strm->total_in += strm->avail_in;
     strm->total_out += strm->avail_out;
 
+    struct internal_state *state = strm->state;
+    int status;
     do {
         status = state->mode(strm);
     } while (status == M_CONTINUE);
@@ -843,9 +827,7 @@ int aec_decode_end(struct aec_stream *strm)
 
 int aec_buffer_decode(struct aec_stream *strm)
 {
-    int status;
-
-    status = aec_decode_init(strm);
+    int status = aec_decode_init(strm);
     if (status != AEC_OK)
         return status;
 

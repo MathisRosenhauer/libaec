@@ -7,12 +7,11 @@
 
 int check_long_fs(struct test_state *state)
 {
-    int status, size, i, bs;
+    int status;
+    int size = state->bytes_per_sample;
+    int bs = state->strm->block_size;
 
-    size = state->bytes_per_sample;
-    bs = state->strm->block_size;
-
-    for (i = 0; i < bs / 2; i++) {
+    for (int i = 0; i < bs / 2; i++) {
         state->out(state->ubuf + size * i, state->xmin, size);
         state->out(state->ubuf + bs * size / 2 + size * i, 65000, size);
     }

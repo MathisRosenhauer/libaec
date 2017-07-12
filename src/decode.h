@@ -97,8 +97,7 @@ struct internal_state {
     /* length of output block in bytes */
     uint32_t out_blklen;
 
-    /* counter for samples */
-    uint32_t n, i;
+    uint32_t sample_counter;
 
     /* accumulator for currently used bit sequence */
     uint64_t acc;

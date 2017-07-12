@@ -117,15 +117,12 @@ static inline void copy64(uint8_t *dst, uint64_t src)
 
 static inline void emitblock_fs(struct aec_stream *strm, int k, int ref)
 {
-    size_t i;
-    uint32_t used; /* used bits in 64 bit accumulator */
-    uint64_t acc; /* accumulator */
     struct internal_state *state = strm->state;
 
-    acc = (uint64_t)*state->cds << 56;
-    used = 7 - state->bits;
+    uint64_t acc = (uint64_t)*state->cds << 56;
+    uint32_t used = 7 - state->bits; /* used bits in 64 bit accumulator */
 
-    for (i = ref; i < strm->block_size; i++) {
+    for (size_t i = ref; i < strm->block_size; i++) {
         used += (state->block[i] >> k) + 1;
         while (used > 63) {
             copy64(state->cds, acc);
@@ -147,15 +144,13 @@ static inline void emitblock(struct aec_stream *strm, int k, int ref)
        Emit the k LSB of a whole block of input data.
     */
 
-    uint64_t a;
     struct internal_state *state = strm->state;
     uint32_t *in = state->block + ref;
     uint32_t *in_end = state->block + strm->block_size;
     uint64_t mask = (UINT64_C(1) << k) - 1;
     uint8_t *o = state->cds;
+    uint64_t a = *o;
     int p = state->bits;
-
-    a = *o;
 
     while(in < in_end) {
         a <<= 56;
@@ -247,12 +242,11 @@ static void preprocess_unsigned(struct aec_stream *strm)
     uint32_t *restrict d = state->data_pp;
     uint32_t xmax = state->xmax;
     uint32_t rsi = strm->rsi * strm->block_size - 1;
-    size_t i;
 
     state->ref = 1;
     state->ref_sample = x[0];
     d[0] = 0;
-    for (i = 0; i < rsi; i++) {
+    for (size_t i = 0; i < rsi; i++) {
         if (x[i + 1] >= x[i]) {
             D = x[i + 1] - x[i];
             if (D <= x[i])
@@ -284,14 +278,13 @@ static void preprocess_signed(struct aec_stream *strm)
     int32_t xmin = (int32_t)state->xmin;
     uint32_t rsi = strm->rsi * strm->block_size - 1;
     uint32_t m = UINT64_C(1) << (strm->bits_per_sample - 1);
-    size_t i;
 
     state->ref = 1;
     state->ref_sample = x[0];
     d[0] = 0;
     x[0] = (x[0] ^ m) - m;
 
-    for (i = 0; i < rsi; i++) {
+    for (size_t i = 0; i < rsi; i++) {
         x[i + 1] = (x[i + 1] ^ m) - m;
         if (x[i + 1] < x[i]) {
             D = (uint32_t)(x[i] - x[i + 1]);
@@ -316,11 +309,10 @@ static inline uint64_t block_fs(struct aec_stream *strm, int k)
        Sum FS of all samples in block for given splitting position.
     */
 
-    size_t i;
-    uint64_t fs = 0;
     struct internal_state *state = strm->state;
+    uint64_t fs = 0;
 
-    for (i = 0; i < strm->block_size; i++)
+    for (size_t i = 0; i < strm->block_size; i++)
         fs += (uint64_t)(state->block[i] >> k);
 
     return fs;
@@ -353,26 +345,29 @@ static uint32_t assess_splitting_option(struct aec_stream *strm)
        analogue check can be done for decreasing k.
      */
 
-    int k;
-    int k_min;
-    int this_bs; /* Block size of current block */
-    int no_turn; /* 1 if we shouldn't reverse */
-    int dir; /* Direction, 1 means increasing k, 0 decreasing k */
-    uint64_t len; /* CDS length for current k */
-    uint64_t len_min; /* CDS length minimum so far */
-    uint64_t fs_len; /* Length of FS part (not including 1s) */
-
     struct internal_state *state = strm->state;
 
-    this_bs = strm->block_size - state->ref;
-    len_min = UINT64_MAX;
-    k = k_min = state->k;
-    no_turn = k == 0;
-    dir = 1;
+    /* Block size of current block */
+    int this_bs = strm->block_size - state->ref;
+
+    /* CDS length minimum so far */
+    uint64_t len_min = UINT64_MAX;
+
+    int k = state->k;
+    int k_min = k;
+
+    /* 1 if we shouldn't reverse */
+    int no_turn = (k == 0);
+
+    /* Direction, 1 means increasing k, 0 decreasing k */
+    int dir = 1;
 
     for (;;) {
-        fs_len = block_fs(strm, k);
-        len = fs_len + this_bs * (k + 1);
+        /* Length of FS part (not including 1s) */
+        uint64_t fs_len = block_fs(strm, k);
+
+        /* CDS length for current k */
+        uint64_t len = fs_len + this_bs * (k + 1);
 
         if (len < len_min) {
             if (len_min < UINT64_MAX)
@@ -417,15 +412,12 @@ static uint32_t assess_se_option(struct aec_stream *strm)
        If length is above limit just return UINT32_MAX.
     */
 
-    size_t i;
-    uint64_t len, d;
     struct internal_state *state = strm->state;
     uint32_t *block = state->block;
+    uint64_t len = 1;
 
-    len = 1;
-
-    for (i = 0; i < strm->block_size; i += 2) {
-        d = (uint64_t)block[i] + (uint64_t)block[i + 1];
+    for (size_t i = 0; i < strm->block_size; i += 2) {
+        uint64_t d = (uint64_t)block[i] + (uint64_t)block[i + 1];
         len += d * (d + 1) / 2 + block[i + 1] + 1;
         if (len > state->uncomp_len)
             return UINT32_MAX;
@@ -493,7 +485,6 @@ static int m_flush_block(struct aec_stream *strm)
 
        Fall back to slow flushing if in buffered mode.
     */
-    int n;
     struct internal_state *state = strm->state;
 
 #ifdef ENABLE_RSI_PADDING
@@ -505,7 +496,7 @@ static int m_flush_block(struct aec_stream *strm)
 #endif
 
     if (state->direct_out) {
-        n = (int)(state->cds - strm->next_out);
+        int n = (int)(state->cds - strm->next_out);
         strm->next_out += n;
         strm->avail_out -= n;
         state->mode = m_get_block;
@@ -546,16 +537,14 @@ static int m_encode_uncomp(struct aec_stream *strm)
 
 static int m_encode_se(struct aec_stream *strm)
 {
-    size_t i;
-    uint32_t d;
     struct internal_state *state = strm->state;
 
     emit(state, 1, state->id_len + 1);
     if (state->ref)
         emit(state, state->ref_sample, strm->bits_per_sample);
 
-    for (i = 0; i < strm->block_size; i+= 2) {
-        d = state->block[i] + state->block[i + 1];
+    for (size_t i = 0; i < strm->block_size; i+= 2) {
+        uint32_t d = state->block[i] + state->block[i + 1];
         emitfs(state, d * (d + 1) / 2 + state->block[i + 1]);
     }
 
@@ -588,15 +577,14 @@ static int m_select_code_option(struct aec_stream *strm)
        Decide which code option to use.
     */
 
-    uint32_t split_len;
-    uint32_t se_len;
     struct internal_state *state = strm->state;
 
+    uint32_t split_len;
     if (state->id_len > 1)
         split_len = assess_splitting_option(strm);
     else
         split_len = UINT32_MAX;
-    se_len = assess_se_option(strm);
+    uint32_t se_len = assess_se_option(strm);
 
     if (split_len < state->uncomp_len) {
         if (split_len < se_len)
@@ -620,10 +608,10 @@ static int m_check_zero_block(struct aec_stream *strm)
        end of a segment or RSI.
     */
 
-    size_t i;
     struct internal_state *state = strm->state;
     uint32_t *p = state->block;
 
+    size_t i;
     for (i = 0; i < strm->block_size; i++)
         if (p[i] != 0)
             break;
@@ -912,7 +900,6 @@ int aec_encode(struct aec_stream *strm, int flush)
        Finite-state machine implementation of the adaptive entropy
        encoder.
     */
-    int n;
     struct internal_state *state = strm->state;
 
     state->flush = flush;
@@ -922,7 +909,7 @@ int aec_encode(struct aec_stream *strm, int flush)
     while (state->mode(strm) == M_CONTINUE);
 
     if (state->direct_out) {
-        n = (int)(state->cds - strm->next_out);
+        int n = (int)(state->cds - strm->next_out);
         strm->next_out += n;
         strm->avail_out -= n;
 
@@ -938,9 +925,8 @@ int aec_encode(struct aec_stream *strm, int flush)
 int aec_encode_end(struct aec_stream *strm)
 {
     struct internal_state *state = strm->state;
-    int status;
 
-    status = AEC_OK;
+    int status = AEC_OK;
     if (state->flush == AEC_FLUSH && state->flushed == 0)
         status = AEC_STREAM_ERROR;
     cleanup(strm);
@@ -949,9 +935,7 @@ int aec_encode_end(struct aec_stream *strm)
 
 int aec_buffer_encode(struct aec_stream *strm)
 {
-    int status;
-
-    status = aec_encode_init(strm);
+    int status = aec_encode_init(strm);
     if (status != AEC_OK)
         return status;
     status = aec_encode(strm, AEC_FLUSH);

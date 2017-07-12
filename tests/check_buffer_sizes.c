@@ -7,9 +7,8 @@
 
 int check_block_sizes(struct test_state *state)
 {
-    int bs, status;
-
-    for (bs = 8; bs <= 64; bs *= 2) {
+    for (int bs = 8; bs <= 64; bs *= 2) {
+        int status;
         state->strm->block_size = bs;
         state->strm->rsi = (int)(state->buf_len
                                  / (bs * state->bytes_per_sample));
@@ -23,11 +22,9 @@ int check_block_sizes(struct test_state *state)
 
 int check_block_sizes_short(struct test_state *state)
 {
-    int bs, status;
-    size_t tmp;
-
-    tmp = state->ibuf_len;
-    for (bs = 8; bs <= 64; bs *= 2) {
+    size_t tmp = state->ibuf_len;
+    for (int bs = 8; bs <= 64; bs *= 2) {
+        int status;
         state->strm->block_size = bs;
         state->strm->rsi = (int)(state->buf_len
                                  / (bs * state->bytes_per_sample));
@@ -48,12 +45,10 @@ int check_block_sizes_short(struct test_state *state)
 
 int check_rsi(struct test_state *state)
 {
-    int status, size;
-    unsigned char *tmp;
+    int status;
+    int size = state->bytes_per_sample;
 
-    size = state->bytes_per_sample;
-
-    for (tmp = state->ubuf;
+    for (unsigned char *tmp = state->ubuf;
          tmp < state->ubuf + state->buf_len;
          tmp += 2 * state->bytes_per_sample) {
         state->out(tmp, state->xmax, size);

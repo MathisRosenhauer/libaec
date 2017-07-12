@@ -7,17 +7,17 @@
 
 int check_block_sizes(struct test_state *state, int id, int id_len)
 {
-    int bs, status, rsi, max_rsi;
-
     state->id = id;
-    for (bs = 8; bs <= 64; bs *= 2) {
-        state->strm->block_size = bs;
+    for (int bs = 8; bs <= 64; bs *= 2) {
+        int max_rsi;
 
+        state->strm->block_size = bs;
         max_rsi = (int)(state->buf_len / (bs * state->bytes_per_sample));
         if (max_rsi > 4096)
             max_rsi = 4096;
 
-        for (rsi = 1; rsi <= max_rsi; rsi++) {
+        for (int rsi = 1; rsi <= max_rsi; rsi++) {
+            int status;
             state->strm->rsi = rsi;
             status = state->codec(state);
             if (status)
@@ -55,10 +55,10 @@ int check_zero(struct test_state *state)
 
 int check_splitting(struct test_state *state, int k)
 {
-    int status, size;
+    int status;
     unsigned char *tmp;
 
-    size = state->bytes_per_sample;
+    int size = state->bytes_per_sample;
 
     if (state->strm->flags & AEC_DATA_PREPROCESS) {
         for (tmp = state->ubuf;
@@ -92,10 +92,10 @@ int check_splitting(struct test_state *state, int k)
 
 int check_uncompressed(struct test_state *state)
 {
-    int status, size;
+    int status;
     unsigned char *tmp;
 
-    size = state->bytes_per_sample;
+    int size = state->bytes_per_sample;
 
     for (tmp = state->ubuf;
          tmp < state->ubuf + state->buf_len;
@@ -117,10 +117,10 @@ int check_uncompressed(struct test_state *state)
 
 int check_fs(struct test_state *state)
 {
-    int status, size;
+    int status;
     unsigned char *tmp;
 
-    size = state->bytes_per_sample;
+    int size = state->bytes_per_sample;
 
     if (state->strm->flags & AEC_DATA_PREPROCESS) {
         for (tmp = state->ubuf;
@@ -153,10 +153,10 @@ int check_fs(struct test_state *state)
 
 int check_se(struct test_state *state)
 {
-    int status, size;
+    int status;
     unsigned char *tmp;
 
-    size = state->bytes_per_sample;
+    int size = state->bytes_per_sample;
 
     if (state->strm->flags & AEC_DATA_PREPROCESS) {
         for (tmp = state->ubuf;
@@ -197,9 +197,9 @@ int check_se(struct test_state *state)
 
 int check_bps(struct test_state *state)
 {
-    int k, status, bps;
+    int status;
 
-    for (bps = 8; bps <= 32; bps += 8) {
+    for (int bps = 8; bps <= 32; bps += 8) {
         state->strm->bits_per_sample = bps;
         if (bps == 24)
             state->strm->flags |= AEC_DATA_3BYTE;
@@ -224,7 +224,7 @@ int check_bps(struct test_state *state)
         if (status)
             return status;
 
-        for (k = 1; k < bps - 2; k++) {
+        for (int k = 1; k < bps - 2; k++) {
             status = check_splitting(state, k);
             if (status)
                 return status;
