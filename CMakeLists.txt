@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8.6)
+cmake_minimum_required(VERSION 3.0.0)
 include(CheckIncludeFiles)
 include(TestBigEndian)
 include(CheckCSourceCompiles)
@@ -48,7 +48,7 @@ add_subdirectory(tests)
 
 option(AEC_FUZZING "Enable build of fuzzing targets" OFF)
 if(AEC_FUZZING)
-  add_subdirectory(fuzz)
+  add_subdirectory(fuzzing)
 endif()
 
 set(CPACK_PACKAGE_NAME "libaec")

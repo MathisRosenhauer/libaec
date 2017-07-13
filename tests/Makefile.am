@@ -10,15 +10,15 @@ check_PROGRAMS = check_code_options check_buffer_sizes check_long_fs \
 check_szcomp
 
 check_code_options_SOURCES = check_code_options.c check_aec.h \
-$(top_builddir)/src/libaec.h
+$(top_srcdir)/src/libaec.h
 
 check_buffer_sizes_SOURCES = check_buffer_sizes.c check_aec.h \
-$(top_builddir)/src/libaec.h
+$(top_srcdir)/src/libaec.h
 
 check_long_fs_SOURCES = check_long_fs.c check_aec.h \
-$(top_builddir)/src/libaec.h
+$(top_srcdir)/src/libaec.h
 
-check_szcomp_SOURCES = check_szcomp.c $(top_builddir)/src/szlib.h
+check_szcomp_SOURCES = check_szcomp.c $(top_srcdir)/src/szlib.h
 
 LDADD = libcheck_aec.la $(top_builddir)/src/libaec.la
 check_szcomp_LDADD = $(top_builddir)/src/libsz.la

@@ -17,3 +17,5 @@ autom4te.cache
 .DS_Store
 build*
 data/121B2TestData
+m4/libtool.m4
+m4/lt*
