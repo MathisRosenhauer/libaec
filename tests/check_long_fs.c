@@ -32,6 +32,7 @@ int main (void)
     struct aec_stream strm;
     struct test_state state;
 
+    state.dump = 0;
     state.buf_len = state.ibuf_len = BUF_SIZE;
     state.cbuf_len = 2 * BUF_SIZE;
 
