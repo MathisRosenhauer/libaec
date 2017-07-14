@@ -7,7 +7,7 @@ EXTRA_DIST = doc/patent.txt CMakeLists.txt cmake/config.h.in \
 cmake/macros.cmake README.md README.SZIP CHANGELOG.md Copyright.txt data
 
 sampledata = 121B2TestData
-sampledata_url = http://cwe.ccsds.org/sls/docs/SLS-DC/BB121B2TestData/$(sampledata).zip
+sampledata_url = https://cwe.ccsds.org/sls/docs/SLS-DC/BB121B2TestData/$(sampledata).zip
 update-sampledata:
 	cd $(srcdir)/data && \
 	  rm -rf $(sampledata) && \
