@@ -16,6 +16,7 @@ noinst_PROGRAMS = utime
 utime_SOURCES = utime.c
 aec_LDADD = libaec.la
 aec_SOURCES = aec.c
+dist_man_MANS = aec.1
 
 EXTRA_DIST = CMakeLists.txt benc.sh bdec.sh
 CLEANFILES = bench.dat bench.rz

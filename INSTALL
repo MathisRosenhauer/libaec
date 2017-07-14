@@ -44,7 +44,7 @@ Unpack the tar archive and change into the unpacked directory.
 
   mkdir build
   cd build
-  cmake ..  # CMAKE_INSTALL_PREFIX=~/.local
+  cmake ..
   make install
 
 You can set options for compiling using the CMake GUI by replacing the cmake

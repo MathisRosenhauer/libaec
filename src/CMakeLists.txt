@@ -37,7 +37,10 @@ else(WIN32)
     ARCHIVE
     DESTINATION ${CMAKE_INSTALL_LIBDIR}
     COMPONENT libraries)
+  install(FILES aec.1
+    DESTINATION ${CMAKE_INSTALL_FULL_MANDIR}/man1 COMPONENT doc)
 endif(WIN32)
+
 install(FILES libaec.h szlib.h
   DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
   COMPONENT headers)
@@ -46,4 +49,4 @@ install(TARGETS aec_client
   DESTINATION ${CMAKE_INSTALL_BINDIR}
   COMPONENT applications)
 
-set(CPACK_COMPONENTS_ALL applications libraries headers)
+set(CPACK_COMPONENTS_ALL applications libraries headers doc)
