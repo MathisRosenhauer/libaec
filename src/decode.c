@@ -2,7 +2,7 @@
  * @file decode.c
  *
  * @section LICENSE
- * Copyright 2012 - 2016
+ * Copyright 2012 - 2017
  *
  * Mathis Rosenhauer, Moritz Hanke, Joerg Behrens
  * Deutsches Klimarechenzentrum GmbH

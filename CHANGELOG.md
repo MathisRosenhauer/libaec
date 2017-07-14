@@ -1,7 +1,7 @@
 # libaec Changelog
 All notable changes to libaec will be documented in this file.
 
-## [Unreleased]
+## [1.0.1] - 2017-07-14
 
 ### Fixed
 - Potential security vulnerabilities in decoder exposed by libFuzzer.
@@ -10,7 +10,7 @@ All notable changes to libaec will be documented in this file.
 - Fuzz target for decoding and encoding.
 
 ### Changed
-- Improved cmake support.
+- Improved Cmake support by Christoph Junghans
 
 ## [1.0.0] - 2016-11-16
 
