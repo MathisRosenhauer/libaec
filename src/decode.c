@@ -520,7 +520,7 @@ static int m_zero_block(struct aec_stream *strm)
 
     if (zero_blocks == ROS) {
         int b = (int)RSI_USED_SIZE(state) / strm->block_size;
-        zero_blocks = MIN(strm->rsi - b, 64 - (b % 64));
+        zero_blocks = MIN((int)(strm->rsi - b), 64 - (b % 64));
     } else if (zero_blocks > ROS) {
         zero_blocks--;
     }

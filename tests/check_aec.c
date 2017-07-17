@@ -175,7 +175,7 @@ int encode_decode_small(struct test_state *state)
                 printf("\n");
             printf("%02x ", state->ubuf[i]);
         }
-        printf("\n\ncompressed buf len %li", compressed_size);
+        printf("\n\ncompressed buf len %zu", compressed_size);
         for (int i = 0; i < 80; i++) {
             if (i % 8 == 0)
                 printf("\n");
@@ -197,7 +197,7 @@ int encode_decode_small(struct test_state *state)
 int encode_decode_large(struct test_state *state)
 {
     int status;
-    int bflags;
+    int bflags = 0;
     size_t to;
     char fbase[1024];
     struct aec_stream *strm = state->strm;
@@ -290,7 +290,7 @@ int encode_decode_large(struct test_state *state)
                 printf("\n");
             printf("%02x ", state->ubuf[i]);
         }
-        printf("\n\ncompressed buf len %li", to);
+        printf("\n\ncompressed buf len %zu", to);
         for (int i = 0; i < 80; i++) {
             if (i % 8 == 0)
                 printf("\n");

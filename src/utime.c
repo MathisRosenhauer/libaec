@@ -67,7 +67,8 @@ run_cmd(int argc, char *argv[]);
 int main(int argc, char **argv)
 {
   struct timeval utime = { .tv_sec = 0, .tv_usec = 0 };
-  int status, rstatus;
+  int rstatus;
+  int status = 0;
   if (argc > 1 && ((status = run_cmd(argc - 1, argv + 1)) >= 0))
   {
     struct rusage usage;
@@ -120,4 +121,3 @@ run_cmd(int argc, char *argv[])
   }
   return status;
 }
-
