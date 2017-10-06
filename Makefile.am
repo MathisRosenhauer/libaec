@@ -1,8 +1,5 @@
 ACLOCAL_AMFLAGS = -I m4
-if AEC_FUZZING
-  FUZZDIR = fuzzing
-endif
-SUBDIRS = src tests $(FUZZDIR)
+SUBDIRS = src tests
 EXTRA_DIST = doc/patent.txt CMakeLists.txt cmake/config.h.in \
 cmake/macros.cmake README.md README.SZIP CHANGELOG.md Copyright.txt data
 
