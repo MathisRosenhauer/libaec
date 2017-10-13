@@ -99,7 +99,15 @@ int SZ_BufftoBuffCompress(void *dest, size_t *destLen,
                           SZ_com_t *param)
 {
     struct aec_stream strm;
+    void *buf = 0;
+    void *padbuf = 0;
     int status;
+    int interleave;
+    int pixel_size;
+    int aec_status;
+    size_t scanlines;
+    size_t padbuf_size;
+    size_t padding_size;
 
     strm.block_size = param->pixels_per_block;
     strm.rsi = (param->pixels_per_scanline + param->pixels_per_block - 1)
@@ -107,10 +115,8 @@ int SZ_BufftoBuffCompress(void *dest, size_t *destLen,
     strm.flags = AEC_NOT_ENFORCE | convert_options(param->options_mask);
     strm.avail_out = *destLen;
     strm.next_out = dest;
-    void *buf = 0;
-    void *padbuf = 0;
 
-    int interleave = param->bits_per_pixel == 32 || param->bits_per_pixel == 64;
+    interleave = param->bits_per_pixel == 32 || param->bits_per_pixel == 64;
     if (interleave) {
         strm.bits_per_sample = 8;
         buf = malloc(sourceLen);
@@ -124,18 +130,18 @@ int SZ_BufftoBuffCompress(void *dest, size_t *destLen,
         buf = (void *)source;
     }
 
-    int pixel_size = bits_to_bytes(strm.bits_per_sample);
+    pixel_size = bits_to_bytes(strm.bits_per_sample);
 
-    size_t scanlines = (sourceLen / pixel_size + param->pixels_per_scanline - 1)
+    scanlines = (sourceLen / pixel_size + param->pixels_per_scanline - 1)
         / param->pixels_per_scanline;
-    size_t padbuf_size = strm.rsi * strm.block_size * pixel_size * scanlines;
+    padbuf_size = strm.rsi * strm.block_size * pixel_size * scanlines;
     padbuf = malloc(padbuf_size);
     if (padbuf == NULL) {
         status = SZ_MEM_ERROR;
         goto CLEANUP;
     }
 
-    size_t padding_size =
+    padding_size =
         (strm.rsi * strm.block_size - param->pixels_per_scanline)
         * pixel_size;
 
@@ -146,7 +152,7 @@ int SZ_BufftoBuffCompress(void *dest, size_t *destLen,
     strm.next_in = padbuf;
     strm.avail_in = padbuf_size;
 
-    int aec_status = aec_buffer_encode(&strm);
+    aec_status = aec_buffer_encode(&strm);
     if (aec_status == AEC_STREAM_ERROR)
         status = SZ_OUTBUFF_FULL;
     else
@@ -166,7 +172,12 @@ int SZ_BufftoBuffDecompress(void *dest, size_t *destLen,
                             SZ_com_t *param)
 {
     struct aec_stream strm;
+    void *buf = 0;
     int status;
+    int pad_scanline;
+    int deinterleave;
+    int extra_buffer;
+    int pixel_size;
     size_t total_out;
     size_t scanlines;
 
@@ -176,13 +187,11 @@ int SZ_BufftoBuffDecompress(void *dest, size_t *destLen,
     strm.flags = convert_options(param->options_mask);
     strm.avail_in = sourceLen;
     strm.next_in = source;
-    void *buf = 0;
 
-    int pad_scanline = param->pixels_per_scanline % param->pixels_per_block;
-    int deinterleave = (param->bits_per_pixel == 32
+    pad_scanline = param->pixels_per_scanline % param->pixels_per_block;
+    deinterleave = (param->bits_per_pixel == 32
                         || param->bits_per_pixel == 64);
-    int extra_buffer = pad_scanline || deinterleave;
-    int pixel_size;
+    extra_buffer = pad_scanline || deinterleave;
 
     if (deinterleave)
         strm.bits_per_sample = 8;

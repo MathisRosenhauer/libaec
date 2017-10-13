@@ -94,10 +94,11 @@
                 xmax = state->xmax;                                      \
                                                                          \
                 for (bp = state->flush_start; bp < flush_end; bp++) {    \
+                    uint32_t mask;                                       \
                     d = *bp;                                             \
                     half_d = (d >> 1) + (d & 1);                         \
                     /*in this case: data >= med == data & med */         \
-                    uint32_t mask = (data & med)?xmax:0;                 \
+                    mask = (data & med)?xmax:0;                          \
                                                                          \
                     /*in this case: xmax - data == xmax ^ data */        \
                     if (half_d <= (mask ^ (uint32_t)data)) {             \
@@ -303,21 +304,23 @@ static inline uint32_t direct_get_fs(struct aec_stream *strm)
         state->bitp = 56;
     }
 
+    {
 #ifndef __has_builtin
 #define __has_builtin(x) 0  /* Compatibility with non-clang compilers. */
 #endif
 #if HAVE_DECL___BUILTIN_CLZLL || __has_builtin(__builtin_clzll)
-    int i = 63 - __builtin_clzll(state->acc);
+        int i = 63 - __builtin_clzll(state->acc);
 #elif HAVE_BSR64
-    unsigned long i;
-    _BitScanReverse64(&i, state->acc);
+        unsigned long i;
+        _BitScanReverse64(&i, state->acc);
 #else
-    int i = state->bitp - 1;
-    while ((state->acc & (UINT64_C(1) << i)) == 0)
-        i--;
+        int i = state->bitp - 1;
+        while ((state->acc & (UINT64_C(1) << i)) == 0)
+            i--;
 #endif
-    fs += state->bitp - i - 1;
-    state->bitp = i;
+        fs += state->bitp - i - 1;
+        state->bitp = i;
+    }
     return fs;
 }
 
@@ -676,6 +679,7 @@ static void create_se_table(int *table)
 int aec_decode_init(struct aec_stream *strm)
 {
     struct internal_state *state;
+    int modi;
 
     if (strm->bits_per_sample > 32 || strm->bits_per_sample == 0)
         return AEC_CONF_ERROR;
@@ -745,7 +749,7 @@ int aec_decode_init(struct aec_stream *strm)
     state->in_blklen = (strm->block_size * strm->bits_per_sample
                         + state->id_len) / 8 + 16;
 
-    int modi = 1UL << state->id_len;
+    modi = 1UL << state->id_len;
     state->id_table = malloc(modi * sizeof(int (*)(struct aec_stream *)));
     if (state->id_table == NULL)
         return AEC_MEM_ERROR;
@@ -791,11 +795,12 @@ int aec_decode(struct aec_stream *strm, int flush)
        of the states are called. Inspired by zlib.
     */
 
+    struct internal_state *state = strm->state;
+    int status;
+
     strm->total_in += strm->avail_in;
     strm->total_out += strm->avail_out;
 
-    struct internal_state *state = strm->state;
-    int status;
     do {
         status = state->mode(strm);
     } while (status == M_CONTINUE);
