@@ -25,7 +25,7 @@ AC_TYPE_UINT8_T
 AC_C_INLINE
 AC_C_RESTRICT
 
-AC_CHECK_FUNCS([memset strstr])
+AC_CHECK_FUNCS([memset strstr snprintf])
 AC_CHECK_DECLS(__builtin_clzll)
 
 AM_EXTRA_RECURSIVE_TARGETS([bench benc bdec])

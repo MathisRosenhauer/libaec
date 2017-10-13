@@ -3,6 +3,7 @@ set(CMAKE_C_STANDARD 99)
 include(CheckIncludeFiles)
 include(TestBigEndian)
 include(CheckCSourceCompiles)
+include(CheckSymbolExists)
 include(cmake/macros.cmake)
 project(libaec)
 set(libaec_VERSION_MAJOR 1)
@@ -20,6 +21,12 @@ if(NOT HAVE_DECL___BUILTIN_CLZLL)
 endif(NOT HAVE_DECL___BUILTIN_CLZLL)
 find_inline_keyword()
 find_restrict_keyword()
+
+check_symbol_exists(snprintf "stdio.h" HAVE_SNPRINTF)
+if(NOT HAVE_SNPRINTF)
+  check_symbol_exists(_snprintf "stdio.h" HAVE__SNPRINTF)
+  check_symbol_exists(_snprintf_s "stdio.h" HAVE__SNPRINTF_S)
+endif(NOT HAVE_SNPRINTF)
 
 configure_file(
   ${CMAKE_CURRENT_SOURCE_DIR}/cmake/config.h.in

@@ -1,5 +1,7 @@
 #ifndef CHECK_AEC_H
 #define CHECK_AEC_H 1
+
+#include <config.h>
 #include "libaec.h"
 
 struct test_state {
@@ -23,6 +25,18 @@ struct test_state {
 int update_state(struct test_state *state);
 int encode_decode_small(struct test_state *state);
 int encode_decode_large(struct test_state *state);
+
+#ifndef HAVE_SNPRINTF
+#ifdef HAVE__SNPRINTF_S
+#define snprintf(d, n, ...) _snprintf_s((d), (n), _TRUNCATE, __VA_ARGS__)
+#else
+#ifdef HAVE__SNPRINTF
+#define snprintf _snprintf
+#else
+#error "no snprintf compatible function found"
+#endif /* HAVE__SNPRINTF */
+#endif /* HAVE__SNPRINTF_S */
+#endif /* HAVE_SNPRINTF */
 
 #ifdef _WIN32
 #define CHECK_PASS "PASS"
