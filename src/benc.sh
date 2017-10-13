@@ -13,6 +13,7 @@ if [ ! -f  bench.dat ]; then
 fi
 rm -f bench.rz
 utime=$(./utime $AEC -n16 -j64 -r256 -m bench.dat bench.rz 2>&1)
+echo $utime
 bsize=$(wc -c bench.dat | awk '{print $1}')
-perf=$(echo "$bsize/1048576/$utime" | bc)
+perf=$(awk "BEGIN {print ${bsize}/1048576/${utime}}")
 echo "[0;32m*** Encoding with $perf MiB/s user time ***[0m"
