@@ -1,6 +1,11 @@
 # libaec Changelog
 All notable changes to libaec will be documented in this file.
 
+## [1.0.2] - 2017-10-18
+
+### Fixed
+- C99 requirement in all build systems
+
 ## [1.0.1] - 2017-07-14
 
 ### Fixed
