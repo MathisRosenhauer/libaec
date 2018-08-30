@@ -739,11 +739,11 @@ int aec_decode_init(struct aec_stream *strm)
     }
 
     if (strm->flags & AEC_DATA_SIGNED) {
-        state->xmax = UINT32_MAX >> (32 - strm->bits_per_sample + 1);
+        state->xmax = (INT64_C(1) << (strm->bits_per_sample - 1)) - 1;
         state->xmin = ~state->xmax;
     } else {
         state->xmin = 0;
-        state->xmax = UINT32_MAX >> (32 - strm->bits_per_sample);
+        state->xmax = (UINT64_C(1) << strm->bits_per_sample) - 1;
     }
 
     state->in_blklen = (strm->block_size * strm->bits_per_sample

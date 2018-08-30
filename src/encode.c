@@ -849,12 +849,12 @@ int aec_encode_init(struct aec_stream *strm)
     state->rsi_len = strm->rsi * strm->block_size * state->bytes_per_sample;
 
     if (strm->flags & AEC_DATA_SIGNED) {
-        state->xmax = UINT32_MAX >> (32 - strm->bits_per_sample + 1);
+        state->xmax = (INT64_C(1) << (strm->bits_per_sample - 1)) - 1;
         state->xmin = ~state->xmax;
         state->preprocess = preprocess_signed;
     } else {
+        state->xmax = (UINT64_C(1) << strm->bits_per_sample) - 1;
         state->xmin = 0;
-        state->xmax = UINT32_MAX >> (32 - strm->bits_per_sample);
         state->preprocess = preprocess_unsigned;
     }
 
