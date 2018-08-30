@@ -15,7 +15,7 @@ defined in the Space Data System Standard documents [121.0-B-2][1] and
 
 ## Downloads
 
-Source code and binary installer can be [downloaded here](https://gitlab.dkrz.de/k202009/libaec/tags).
+Source code and binary installer can be [downloaded here](https://gitlab.dkrz.de/k202009/libaec/tags) [or here](https://github.com/MathisRosenhauer/libaec).
 
 ## Patent
 
@@ -217,9 +217,9 @@ of the parameters.
 [Consultative Committee for Space Data Systems. Lossless Data
 Compression. Recommendation for Space Data System Standards, CCSDS
 121.0-B-2. Blue Book. Issue 2. Washington, D.C.: CCSDS, May 2012.][1]
-[1]: http://public.ccsds.org/publications/archive/121x0b2.pdf
+[1]: https://public.ccsds.org/Pubs/121x0b2ec1.pdf
 
 [Consultative Committee for Space Data Systems. Lossless Data
 Compression.  Recommendation for Space Data System Standards, CCSDS
 120.0-G-3. Green Book. Issue 3. Washington, D.C.: CCSDS, April 2013.][2]
-[2]: http://public.ccsds.org/publications/archive/120x0g3.pdf
+[2]: https://public.ccsds.org/Pubs/120x0g3.pdf
