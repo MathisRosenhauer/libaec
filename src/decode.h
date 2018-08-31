@@ -104,7 +104,7 @@ struct internal_state {
     int bitp;
 
     /* last fundamental sequence in accumulator */
-    int fs;
+    uint32_t fs;
 
     /* 1 if current block has reference sample */
     int ref;
