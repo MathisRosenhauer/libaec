@@ -2,7 +2,7 @@
  * @file aec.c
  *
  * @section LICENSE
- * Copyright 2012 - 2017
+ * Copyright 2012 - 2018
  *
  * Mathis Rosenhauer, Moritz Hanke, Joerg Behrens
  * Deutsches Klimarechenzentrum GmbH
