@@ -53,9 +53,7 @@
 
 #include <config.h>
 
-#if HAVE_STDINT_H
-#  include <stdint.h>
-#endif
+#include <stdint.h>
 
 #define M_CONTINUE 1
 #define M_EXIT 0

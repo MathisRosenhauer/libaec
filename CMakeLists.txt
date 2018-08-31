@@ -20,7 +20,6 @@ set(CMAKE_BUILD_TYPE Release)
 enable_testing()
 
 check_include_files(malloc.h HAVE_MALLOC_H)
-check_include_files(stdint.h HAVE_STDINT_H)
 test_big_endian(WORDS_BIGENDIAN)
 check_clzll(HAVE_DECL___BUILTIN_CLZLL)
 if(NOT HAVE_DECL___BUILTIN_CLZLL)
