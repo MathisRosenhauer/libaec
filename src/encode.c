@@ -233,7 +233,7 @@ static void preprocess_unsigned(struct aec_stream *strm)
        Preprocess RSI of unsigned samples.
 
        Combining preprocessing and converting to uint32_t in one loop
-       is slower due to the data dependance on x_i-1.
+       is slower due to the data dependence on x_i-1.
     */
 
     uint32_t D;
