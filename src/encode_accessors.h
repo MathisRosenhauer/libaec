@@ -52,9 +52,7 @@
 
 #include "config.h"
 
-#if HAVE_STDINT_H
-#  include <stdint.h>
-#endif
+#include <stdint.h>
 
 uint32_t aec_get_8(struct aec_stream *strm);
 uint32_t aec_get_lsb_16(struct aec_stream *strm);
