@@ -47,11 +47,11 @@
  *
  */
 
+#include "config.h"
+#include "libaec.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-#include "libaec.h"
 
 #define CHUNK 10485760
 

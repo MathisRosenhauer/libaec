@@ -48,13 +48,13 @@
  *
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
+#include "config.h"
 #include "encode.h"
 #include "encode_accessors.h"
 #include "libaec.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 static int m_get_block(struct aec_stream *strm);
 

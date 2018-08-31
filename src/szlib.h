@@ -1,15 +1,16 @@
 #ifndef SZLIB_H
 #define SZLIB_H 1
 
+#include "config.h"
 #include "libaec.h"
 
-#define SZ_ALLOW_K13_OPTION_MASK         1
-#define SZ_CHIP_OPTION_MASK              2
-#define SZ_EC_OPTION_MASK                4
-#define SZ_LSB_OPTION_MASK               8
-#define SZ_MSB_OPTION_MASK              16
-#define SZ_NN_OPTION_MASK               32
-#define SZ_RAW_OPTION_MASK             128
+#define SZ_ALLOW_K13_OPTION_MASK 1
+#define SZ_CHIP_OPTION_MASK 2
+#define SZ_EC_OPTION_MASK 4
+#define SZ_LSB_OPTION_MASK 8
+#define SZ_MSB_OPTION_MASK 16
+#define SZ_NN_OPTION_MASK 32
+#define SZ_RAW_OPTION_MASK 128
 
 #define SZ_OK AEC_OK
 #define SZ_OUTBUFF_FULL 2

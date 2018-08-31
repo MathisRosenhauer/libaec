@@ -51,8 +51,7 @@
 #ifndef ENCODE_H
 #define ENCODE_H 1
 
-#include <config.h>
-
+#include "config.h"
 #include <stdint.h>
 
 #define M_CONTINUE 1

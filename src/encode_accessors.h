@@ -51,7 +51,7 @@
 #define ENCODE_ACCESSORS_H 1
 
 #include "config.h"
-
+#include "libaec.h"
 #include <stdint.h>
 
 uint32_t aec_get_8(struct aec_stream *strm);

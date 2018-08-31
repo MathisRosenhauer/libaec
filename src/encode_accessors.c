@@ -47,13 +47,12 @@
  *
  */
 
-#include <config.h>
-
+#include "config.h"
+#include "encode_accessors.h"
+#include "encode.h"
+#include "libaec.h"
 #include <stdint.h>
 #include <string.h>
-#include "libaec.h"
-#include "encode.h"
-#include "encode_accessors.h"
 
 uint32_t aec_get_8(struct aec_stream *strm)
 {

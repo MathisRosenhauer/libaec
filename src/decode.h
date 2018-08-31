@@ -51,9 +51,9 @@
 #ifndef DECODE_H
 #define DECODE_H 1
 
-#include <config.h>
-
+#include "config.h"
 #include <stdint.h>
+#include <stddef.h>
 
 #define M_CONTINUE 1
 #define M_EXIT 0
