@@ -50,6 +50,8 @@
 #ifndef ENCODE_ACCESSORS_H
 #define ENCODE_ACCESSORS_H 1
 
+#include "config.h"
+
 #if HAVE_STDINT_H
 #  include <stdint.h>
 #endif
