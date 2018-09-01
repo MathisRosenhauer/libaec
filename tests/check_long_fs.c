@@ -7,7 +7,6 @@
 
 int check_long_fs(struct test_state *state)
 {
-    int status;
     int size = state->bytes_per_sample;
     int bs = state->strm->block_size;
 
@@ -18,20 +17,16 @@ int check_long_fs(struct test_state *state)
 
     printf("Checking long fs ... ");
 
-    status = state->codec(state);
-    if (status)
-        return status;
+    const int status = state->codec(state);
+    if (status == 0)
+      printf ("%s\n", CHECK_PASS);
 
-    printf ("%s\n", CHECK_PASS);
-    return 0;
+    return status;
 }
 
-int main (void)
+int main(void)
 {
-    int status;
-    struct aec_stream strm;
     struct test_state state;
-
     state.dump = 0;
     state.buf_len = state.ibuf_len = BUF_SIZE;
     state.cbuf_len = 2 * BUF_SIZE;
@@ -41,10 +36,16 @@ int main (void)
     state.obuf = (unsigned char *)malloc(state.buf_len);
 
     if (!state.ubuf || !state.cbuf || !state.obuf) {
-        printf("Not enough memory.\n");
+        fprintf(stderr, "Not enough memory.\n");
+
+        free(state.ubuf);
+        free(state.cbuf);
+        free(state.obuf);
+
         return 99;
     }
 
+    struct aec_stream strm;
     strm.flags = AEC_DATA_PREPROCESS;
     state.strm = &strm;
     strm.bits_per_sample = 16;
@@ -53,11 +54,8 @@ int main (void)
     state.codec = encode_decode_large;
     update_state(&state);
 
-    status = check_long_fs(&state);
-    if (status)
-        goto DESTRUCT;
+    const int status = check_long_fs(&state);
 
-DESTRUCT:
     free(state.ubuf);
     free(state.cbuf);
     free(state.obuf);
