@@ -19,4 +19,17 @@ if(UNIX)
     NAME sampledata.sh
     COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/sampledata.sh ${CMAKE_CURRENT_SOURCE_DIR}
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
+
+  set(SAMPLE_DATA_DIR "${PROJECT_SOURCE_DIR}/data")
+  set(SAMPLE_DATA_NAME "121B2TestData")
+  set(SAMPLE_DATA_URL "https://cwe.ccsds.org/sls/docs/SLS-DC/BB121B2TestData/121B2TestData.zip")
+  add_custom_target(
+    update-sampledata
+    WORKING_DIRECTORY ${SAMPLE_DATA_DIR}
+    COMMAND rm -rf ${SAMPLE_DATA_NAME}
+    COMMAND curl ${SAMPLE_DATA_URL} -O
+    COMMAND unzip "${SAMPLE_DATA_NAME}.zip"
+    COMMAND rm -f "${SAMPLE_DATA_NAME}.zip"
+    COMMAND mv -f "${SAMPLE_DATA_NAME}/AllOptions/test_P512n22.dat"
+    "${SAMPLE_DATA_NAME}/AllOptions/test_p512n22.dat")
 endif(UNIX)
