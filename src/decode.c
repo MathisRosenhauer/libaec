@@ -68,7 +68,7 @@
     static void flush_##KIND(struct aec_stream *strm)                    \
     {                                                                    \
         uint32_t *flush_end, *bp, half_d;                                \
-        int32_t data, m;                                                 \
+        uint32_t xmax, d, data, m;                                       \
         struct internal_state *state = strm->state;                      \
                                                                          \
         flush_end = state->rsip;                                         \
@@ -87,11 +87,11 @@
             }                                                            \
                                                                          \
             data = state->last_out;                                      \
+            xmax = state->xmax;                                          \
                                                                          \
             if (state->xmin == 0) {                                      \
-                uint32_t xmax, med, d;                                   \
+                uint32_t med;                                            \
                 med = state->xmax / 2 + 1;                               \
-                xmax = state->xmax;                                      \
                                                                          \
                 for (bp = state->flush_start; bp < flush_end; bp++) {    \
                     uint32_t mask;                                       \
@@ -101,36 +101,33 @@
                     mask = (data & med)?xmax:0;                          \
                                                                          \
                     /*in this case: xmax - data == xmax ^ data */        \
-                    if (half_d <= (mask ^ (uint32_t)data)) {             \
+                    if (half_d <= (mask ^ data)) {                       \
                         data += (d >> 1)^(~((d & 1) - 1));               \
                     } else {                                             \
                         data = mask ^ d;                                 \
                     }                                                    \
-                    put_##KIND(strm, (uint32_t)data);                    \
+                    put_##KIND(strm, data);                              \
                 }                                                        \
                 state->last_out = data;                                  \
             } else {                                                     \
-                int32_t xmax, d;                                         \
-                xmax = state->xmax;                                      \
-                                                                         \
                 for (bp = state->flush_start; bp < flush_end; bp++) {    \
                     d = *bp;                                             \
-                    half_d = ((uint32_t)d >> 1) + (d & 1);               \
+                    half_d = (d >> 1) + (d & 1);                         \
                                                                          \
-                    if (data < 0) {                                      \
-                        if (half_d <= xmax + (uint32_t)data + 1) {       \
-                            data += ((uint32_t)d >> 1)^(~((d & 1) - 1)); \
+                    if ((int32_t)data < 0) {                             \
+                        if (half_d <= xmax + data + 1) {                 \
+                            data += (d >> 1)^(~((d & 1) - 1));           \
                         } else {                                         \
                             data = d - xmax - 1;                         \
                         }                                                \
                     } else {                                             \
-                        if (half_d <= xmax - (uint32_t)data) {           \
-                            data += ((uint32_t)d >> 1)^(~((d & 1) - 1)); \
+                        if (half_d <= xmax - data) {                     \
+                            data += (d >> 1)^(~((d & 1) - 1));           \
                         } else {                                         \
                             data = xmax - d;                             \
                         }                                                \
                     }                                                    \
-                    put_##KIND(strm, (uint32_t)data);                    \
+                    put_##KIND(strm, data);                              \
                 }                                                        \
                 state->last_out = data;                                  \
             }                                                            \
