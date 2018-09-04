@@ -5,10 +5,11 @@ endif()
 add_library(aec_fuzz STATIC ${libaec_SRCS})
 add_executable(fuzz_target fuzz_target.cc)
 
-set(FUZZ_TARGET_LINK_FLAGS "-fsanitize=address")
+set(FUZZ_TARGET_LINK_FLAGS "-fsanitize=address,undefined")
 set(FUZZ_TARGET_COMPILE_FLAGS
   "-g"
-  "-fsanitize=address"
+  "-fsanitize=address,undefined"
+  "-fno-sanitize-recover=undefined"
   "-fsanitize-coverage=trace-pc-guard,indirect-calls,edge")
 set_target_properties(fuzz_target aec_fuzz PROPERTIES
   LINK_FLAGS ${FUZZ_TARGET_LINK_FLAGS}
