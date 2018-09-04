@@ -272,29 +272,30 @@ static void preprocess_signed(struct aec_stream *strm)
 
     uint32_t D;
     struct internal_state *state = strm->state;
-    int32_t *restrict x = (int32_t *)state->data_raw;
+    uint32_t *restrict x = state->data_raw;
     uint32_t *restrict d = state->data_pp;
-    int32_t xmax = (int32_t)state->xmax;
-    int32_t xmin = (int32_t)state->xmin;
+    uint32_t xmax = state->xmax;
+    uint32_t xmin = state->xmin;
     uint32_t rsi = strm->rsi * strm->block_size - 1;
-    uint32_t m = UINT64_C(1) << (strm->bits_per_sample - 1);
+    uint32_t m = UINT32_C(1) << (strm->bits_per_sample - 1);
 
     state->ref = 1;
     state->ref_sample = x[0];
     d[0] = 0;
+    /* Sign extension */
     x[0] = (x[0] ^ m) - m;
 
     for (size_t i = 0; i < rsi; i++) {
         x[i + 1] = (x[i + 1] ^ m) - m;
-        if (x[i + 1] < x[i]) {
-            D = (uint32_t)(x[i] - x[i + 1]);
-            if (D <= (uint32_t)(xmax - x[i]))
+        if ((int32_t)x[i + 1] < (int32_t)x[i]) {
+            D = x[i] - x[i + 1];
+            if (D <= xmax - x[i])
                 d[i + 1] = 2 * D - 1;
             else
                 d[i + 1] = xmax - x[i + 1];
         } else {
-            D = (uint32_t)(x[i + 1] - x[i]);
-            if (D <= (uint32_t)(x[i] - xmin))
+            D = x[i + 1] - x[i];
+            if (D <= x[i] - xmin)
                 d[i + 1] = 2 * D;
             else
                 d[i + 1] = x[i + 1] - xmin;
