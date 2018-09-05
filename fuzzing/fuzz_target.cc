@@ -1,14 +1,15 @@
 #include <cstddef>
 #include <cstdint>
 #include <cstdlib>
+#include <vector>
 #include "libaec.h"
 
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t *Data, size_t Size) {
     if (Size < 2)
         return 0;
 
-    unsigned char *dest = static_cast<unsigned char *>(malloc(Size * 4));
-    struct aec_stream strm;
+    std::vector<unsigned char> dest(Size * 4);
+    aec_stream strm;
     strm.bits_per_sample = (Data[0] & 0x1f) | 1;
     strm.block_size = 8 << (Data[1] & 3);
     strm.rsi = 2;
@@ -24,19 +25,18 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *Data, size_t Size) {
         strm.flags |= AEC_DATA_3BYTE;
 
     // Decode data
-    strm.next_in = (unsigned char *)(Data + 2);
+    strm.next_in = reinterpret_cast<const unsigned char *>(Data) + 2;
     strm.avail_in = Size - 2;
-    strm.next_out = dest;
-    strm.avail_out = (Size - 2) * 4;
+    strm.next_out = dest.data();
+    strm.avail_out = dest.size();
     aec_buffer_encode(&strm);
 
     // Encode data
-    strm.next_in = (unsigned char *)(Data + 2);
+    strm.next_in = reinterpret_cast<const unsigned char *>(Data) + 2;
     strm.avail_in = Size - 2;
-    strm.next_out = dest;
-    strm.avail_out = (Size - 2) * 4;
+    strm.next_out = dest.data();
+    strm.avail_out = dest.size();
     aec_buffer_decode(&strm);
 
-    free(dest);
     return 0;
 }
