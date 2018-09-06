@@ -29,14 +29,14 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *Data, size_t Size) {
     strm.avail_in = Size - 2;
     strm.next_out = dest.data();
     strm.avail_out = dest.size();
-    aec_buffer_encode(&strm);
+    aec_buffer_decode(&strm);
 
     // Encode data
     strm.next_in = reinterpret_cast<const unsigned char *>(Data) + 2;
     strm.avail_in = Size - 2;
     strm.next_out = dest.data();
     strm.avail_out = dest.size();
-    aec_buffer_decode(&strm);
+    aec_buffer_encode(&strm);
 
     return 0;
 }
