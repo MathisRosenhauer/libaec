@@ -1,6 +1,14 @@
 # libaec Changelog
 All notable changes to libaec will be documented in this file.
 
+## [1.0.3] - 2019-02-04
+
+### Changed
+- Improvements to testing and fuzzing by Kurt Schwehr
+
+### Fixed
+- Various ubsan issues
+
 ## [1.0.2] - 2017-10-18
 
 ### Fixed
