@@ -4,7 +4,7 @@
  * @author Thomas Jahns, Deutsches Klimarechenzentrum
  *
  * @section LICENSE
- * Copyright 2012 - 2018
+ * Copyright 2012 - 2019
  *
  * Mathis Rosenhauer, Moritz Hanke, Joerg Behrens
  * Deutsches Klimarechenzentrum GmbH
