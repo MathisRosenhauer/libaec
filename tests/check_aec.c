@@ -213,7 +213,7 @@ int encode_decode_large(struct test_state *state)
         return 99;
     }
     if (state->dump) {
-        char fname[1024];
+        char fname[1024 + 4];
         FILE *fp;
         snprintf(fbase, sizeof(fbase), "BPS%02iID%iBS%02iRSI%04iFLG%04i",
                  strm->bits_per_sample,
@@ -249,7 +249,7 @@ int encode_decode_large(struct test_state *state)
     aec_encode_end(strm);
 
     if (state->dump) {
-        char fname[1024];
+        char fname[1024 + 3];
         FILE *fp;
         snprintf(fname, sizeof(fname), "%s.rz", fbase);
         if ((fp = fopen(fname, "wb")) == NULL) {
