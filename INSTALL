@@ -71,11 +71,6 @@ generate it with autotools:
   mkdir build
   cd build
   ../configure
-
-Also not included are CCSDS sample data which are needed for
-testing. They have to be downloaded prior to running 'make check':
-
-  make update-sampledata
   make check install
 
 
