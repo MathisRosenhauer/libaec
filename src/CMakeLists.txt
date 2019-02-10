@@ -1,5 +1,5 @@
 add_library(aec ${LIB_TYPE} ${libaec_SRCS})
-set_target_properties(aec PROPERTIES VERSION 0.0.9 SOVERSION 0)
+set_target_properties(aec PROPERTIES VERSION 0.0.10 SOVERSION 0)
 add_library(sz ${LIB_TYPE} sz_compat.c)
 set_target_properties(sz PROPERTIES VERSION 2.0.1 SOVERSION 2)
 

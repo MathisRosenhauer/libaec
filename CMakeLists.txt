@@ -15,7 +15,7 @@ endif(AEC_FUZZING)
 
 set(libaec_VERSION_MAJOR 1)
 set(libaec_VERSION_MINOR 0)
-set(libaec_VERSION_PATCH 3)
+set(libaec_VERSION_PATCH 4)
 set(CMAKE_BUILD_TYPE Release)
 enable_testing()
 
