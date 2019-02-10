@@ -50,8 +50,7 @@
 #ifndef SZLIB_H
 #define SZLIB_H 1
 
-#include "config.h"
-#include "libaec.h"
+#include <libaec.h>
 
 #define SZ_ALLOW_K13_OPTION_MASK 1
 #define SZ_CHIP_OPTION_MASK 2
