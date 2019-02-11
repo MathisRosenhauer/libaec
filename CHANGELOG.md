@@ -1,6 +1,14 @@
 # libaec Changelog
 All notable changes to libaec will be documented in this file.
 
+## [1.0.4] - 2019-02-11
+
+### Added
+- Test data
+
+### Fixed
+- Include file
+
 ## [1.0.3] - 2019-02-04
 
 ### Changed
