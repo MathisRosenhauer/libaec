@@ -47,8 +47,7 @@
  *
  */
 
-#include "config.h"
-#include "libaec.h"
+#include <libaec.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
