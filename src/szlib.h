@@ -80,15 +80,15 @@ typedef struct SZ_com_t_s
     int pixels_per_scanline;
 } SZ_com_t;
 
-LIBAEC_DLL_EXPORTED int SZ_BufftoBuffCompress(
+libaec_EXPORT int SZ_BufftoBuffCompress(
     void *dest, size_t *destLen,
     const void *source, size_t sourceLen,
     SZ_com_t *param);
-LIBAEC_DLL_EXPORTED int SZ_BufftoBuffDecompress(
+libaec_EXPORT int SZ_BufftoBuffDecompress(
     void *dest, size_t *destLen,
     const void *source, size_t sourceLen,
     SZ_com_t *param);
 
-LIBAEC_DLL_EXPORTED int SZ_encoder_enabled(void);
+libaec_EXPORT int SZ_encoder_enabled(void);
 
 #endif /* SZLIB_H */

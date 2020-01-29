@@ -1,5 +1,13 @@
+include (GenerateExportHeader)
 add_library(aec ${LIB_TYPE} ${libaec_SRCS})
 set_target_properties(aec PROPERTIES VERSION 0.0.10 SOVERSION 0)
+generate_export_header(aec
+  BASE_NAME libaec
+  EXPORT_MACRO_NAME libaec_EXPORT
+  EXPORT_FILE_NAME ${PROJECT_BINARY_DIR}/libaec_Export.h
+  STATIC_DEFINE libaec_BUILT_AS_STATIC
+)
+
 add_library(sz ${LIB_TYPE} sz_compat.c)
 set_target_properties(sz PROPERTIES VERSION 2.0.1 SOVERSION 2)
 
@@ -41,7 +49,7 @@ else(WIN32)
     DESTINATION ${CMAKE_INSTALL_FULL_MANDIR}/man1 COMPONENT doc)
 endif(WIN32)
 
-install(FILES libaec.h szlib.h
+install(FILES libaec.h szlib.h ${PROJECT_BINARY_DIR}/libaec_Export.h
   DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
   COMPONENT headers)
 install(TARGETS aec_client

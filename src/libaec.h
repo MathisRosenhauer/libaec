@@ -52,18 +52,10 @@
 
 #include <stddef.h>
 
+#include "libaec_Export.h"
+
 #ifdef __cplusplus
 extern "C"{
-#endif
-
-#if BUILDING_LIBAEC && HAVE_VISIBILITY
-#  define LIBAEC_DLL_EXPORTED __attribute__((__visibility__("default")))
-#elif BUILDING_LIBAEC && defined _MSC_VER
-#  define LIBAEC_DLL_EXPORTED __declspec(dllexport)
-#elif defined _MSC_VER
-#  define LIBAEC_DLL_EXPORTED __declspec(dllimport)
-#else
-#  define LIBAEC_DLL_EXPORTED
 #endif
 
 struct internal_state;
@@ -155,19 +147,19 @@ struct aec_stream {
 /*********************************************/
 /* Streaming encoding and decoding functions */
 /*********************************************/
-LIBAEC_DLL_EXPORTED int aec_encode_init(struct aec_stream *strm);
-LIBAEC_DLL_EXPORTED int aec_encode(struct aec_stream *strm, int flush);
-LIBAEC_DLL_EXPORTED int aec_encode_end(struct aec_stream *strm);
+libaec_EXPORT int aec_encode_init(struct aec_stream *strm);
+libaec_EXPORT int aec_encode(struct aec_stream *strm, int flush);
+libaec_EXPORT int aec_encode_end(struct aec_stream *strm);
 
-LIBAEC_DLL_EXPORTED int aec_decode_init(struct aec_stream *strm);
-LIBAEC_DLL_EXPORTED int aec_decode(struct aec_stream *strm, int flush);
-LIBAEC_DLL_EXPORTED int aec_decode_end(struct aec_stream *strm);
+libaec_EXPORT int aec_decode_init(struct aec_stream *strm);
+libaec_EXPORT int aec_decode(struct aec_stream *strm, int flush);
+libaec_EXPORT int aec_decode_end(struct aec_stream *strm);
 
 /***************************************************************/
 /* Utility functions for encoding or decoding a memory buffer. */
 /***************************************************************/
-LIBAEC_DLL_EXPORTED int aec_buffer_encode(struct aec_stream *strm);
-LIBAEC_DLL_EXPORTED int aec_buffer_decode(struct aec_stream *strm);
+libaec_EXPORT int aec_buffer_encode(struct aec_stream *strm);
+libaec_EXPORT int aec_buffer_decode(struct aec_stream *strm);
 
 #ifdef __cplusplus
 }
