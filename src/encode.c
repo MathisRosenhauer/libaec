@@ -339,7 +339,7 @@ static uint32_t assess_splitting_option(struct aec_stream *strm)
        increases, then the minimum will be found with smaller k.
 
        For increasing k we know that we will gain block_size bits in
-       length through the larger binary part. If the FS lenth is less
+       length through the larger binary part. If the FS length is less
        than the block size then a reduced FS part can't compensate the
        larger binary part. So we know that the CDS for k+1 will be
        larger than for k without actually computing the length. An

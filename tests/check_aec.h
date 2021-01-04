@@ -12,7 +12,7 @@ struct test_state {
     unsigned char *ubuf;
     unsigned char *cbuf;
     unsigned char *obuf;
-    size_t ibuf_len; /* input buffer legth may be shorter than buf_len */
+    size_t ibuf_len; /* input buffer length may be shorter than buf_len */
     size_t buf_len;
     size_t cbuf_len;
     long long int xmax;
