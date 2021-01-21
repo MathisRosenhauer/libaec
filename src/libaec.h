@@ -83,7 +83,7 @@ struct aec_stream {
     /* block size in samples */
     unsigned int block_size;
 
-    /* Reference sample interval, the number of Coded Data Sets
+    /* Reference sample interval, the number of blocks
      * between consecutive reference samples (up to 4096). */
     unsigned int rsi;
 
@@ -113,7 +113,9 @@ struct aec_stream {
 /* Use restricted set of code options */
 #define AEC_RESTRICTED 16
 
-/* Pad RSI to byte boundary. Only for decoding CCSDS sample data. */
+/* Pad RSI to byte boundary. Only used for decoding some CCSDS sample
+ * data. Do not use this to produce new data as it violates the
+ * standard. */
 #define AEC_PAD_RSI 32
 
 /* Do not enforce standard regarding legal block sizes. */
@@ -140,8 +142,9 @@ struct aec_stream {
  * set AEC_FLUSH to drain all output.
  *
  * It is not possible to continue encoding of the same stream after it
- * has been flushed because the last byte may be padded with fill
- * bits. */
+ * has been flushed. For one, the last block may be padded zeros after
+ * preprocessing. Secondly, the last encoded byte may be padded with
+ * fill bits. */
 #define AEC_FLUSH 1
 
 /*********************************************/

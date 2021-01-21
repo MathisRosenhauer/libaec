@@ -653,7 +653,7 @@ static int m_get_rsi_resumable(struct aec_stream *strm)
     /**
        Get RSI while input buffer is short.
 
-       Let user provide more input. Once we got all input pad buffer
+       Let user provide more input. Once we got all input, pad buffer
        to full RSI.
     */
 
@@ -668,6 +668,8 @@ static int m_get_rsi_resumable(struct aec_stream *strm)
                     state->blocks_avail = state->i / strm->block_size - 1;
                     if (state->i % strm->block_size)
                         state->blocks_avail++;
+                    /* Pad raw buffer with last sample. Only encode
+                     * blocks_avail will be encoded later. */
                     do
                         state->data_raw[state->i] =
                             state->data_raw[state->i - 1];

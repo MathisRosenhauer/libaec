@@ -1,6 +1,20 @@
 # libaec Changelog
 All notable changes to libaec will be documented in this file.
 
+## [1.0.5]
+
+### Changed
+- Updated documentation to new 121.0-B-3 standard. The new standard
+  mainly clarifies and explicitly defines special cases which could be
+  ambiguous or misleading in previous revisions.
+
+  These changes did *not* require any substantial changes to libaec.
+  Existing compressed data is still compatible with this version of
+  the library and compressed data produced by this version can be
+  uncompressed with previous versions.
+
+- Improvements to the build process and further documentation fixes.
+
 ## [1.0.4] - 2019-02-11
 
 ### Added

@@ -8,19 +8,24 @@ simulations. While floating point representations are not directly
 supported, they can also be efficiently coded by grouping exponents
 and mantissa.
 
-Libaec implements
+## Scope
+
+Libaec implements extended
 [Golomb-Rice](http://en.wikipedia.org/wiki/Golomb_coding) coding as
-defined in the Space Data System Standard documents [121.0-B-2][1] and
-[120.0-G-2][2].
+defined in the CCSDS recommended standard [121.0-B-3][1]. The library
+covers the adaptive entropy coder and the preprocessor discussed in
+sections 1 to 5.2.6 of the [standard][1].
 
 ## Downloads
 
 Source code and binary installer can be [downloaded here](https://gitlab.dkrz.de/k202009/libaec/tags) [or here](https://github.com/MathisRosenhauer/libaec).
 
-## Patent
+## Patent considerations
 
-In [patent.txt](doc/patent.txt) a statement on potentially
-applying intellectual property rights is given.
+As stated in section A3 of the current [standard][1]
+
+> At time of publication, the specifications of this Recommended
+> Standard are not known to be the subject of patent rights.
 
 ## Installation
 
@@ -36,8 +41,8 @@ In this context efficiency refers to the size of the encoded
 data. Performance refers to the time it takes to encode data.
 
 Suppose you have an array of 32 bit signed integers you want to
-compress. The pointer pointing to the data shall be called `*source`,
-output goes into `*dest`.
+compress. The pointer pointing to the data shall be called `source`,
+output goes into `dest`.
 
 ```c
 #include <libaec.h>
@@ -91,11 +96,12 @@ compression to adapt more rapidly to changing source
 statistics. Larger blocks create less overhead but can be less
 efficient if source statistics change across the block.
 
-`rsi` sets the reference sample interval. A large RSI will improve
-performance and efficiency. It will also increase memory requirements
-since internal buffering is based on RSI size. A smaller RSI may be
-desirable in situations where each RSI will be packetized and possible
-error propagation has to be minimized.
+`rsi` sets the reference sample interval in blocks. A large RSI will
+improve performance and efficiency. It will also increase memory
+requirements since internal buffering is based on RSI size. A smaller
+RSI may be desirable in situations where errors could occur in the
+transmission of encoded data and the resulting propagation of errors
+in decoded data has to be minimized.
 
 ### Flags:
 
@@ -108,20 +114,13 @@ error propagation has to be minimized.
   uncorrelated.
 
 * `AEC_DATA_MSB`: input data is stored most significant byte first
-  i.e. big endian. You have to specify `AEC_DATA_MSB` even if your host
-  architecture is big endian. Default is little endian on all
-  architectures.
+  i.e. big endian. Default is little endian on all architectures.
 
 * `AEC_DATA_3BYTE`: the 17 to 24 bit input data is stored in three
   bytes. This flag has no effect for other sample sizes.
 
 * `AEC_RESTRICTED`: use a restricted set of code options. This option is
   only valid for `bits_per_sample` <= 4.
-
-* `AEC_PAD_RSI`: assume that the encoded RSI is padded to the next byte
-  boundary while decoding. The preprocessor macro `ENABLE_RSI_PADDING`
-  needs to be defined while compiling for the encoder to honour this
-  flag.
 
 ### Data size:
 
@@ -138,7 +137,7 @@ The following rules apply for deducing storage size from sample size
 
 If a sample requires less bits than the storage size provides, then
 you have to make sure that unused bits are not set. Libaec does not
-check this for performance reasons and will produce undefined output
+enforce this for performance reasons and will produce undefined output
 if unused bits are set. All input data must be a multiple of the
 storage size in bytes. Remaining bytes which do not form a complete
 sample will be ignored.
@@ -211,15 +210,17 @@ The actual values of coding parameters are in fact only relevant for
 efficiency and performance. Data integrity only depends on consistency
 of the parameters.
 
+The exact length of the original data is not preserved and must also be
+transmitted out of band. The decoder can produce additional output
+depending on whether the original data ended on a block boundary or on
+zero blocks. The output data must therefore be truncated to the
+correct length. This can also be achieved by providing an output
+buffer of just the correct length.
 
 ## References
 
-[Consultative Committee for Space Data Systems. Lossless Data
-Compression. Recommendation for Space Data System Standards, CCSDS
-121.0-B-2. Blue Book. Issue 2. Washington, D.C.: CCSDS, May 2012.][1]
-[1]: https://public.ccsds.org/Pubs/121x0b2ec1.pdf
+[Lossless Data Compression. Recommendation for Space Data System
+Standards, CCSDS 121.0-B-3. Blue Book. Issue 3. Washington, D.C.:
+CCSDS, August 2020.][1]
 
-[Consultative Committee for Space Data Systems. Lossless Data
-Compression.  Recommendation for Space Data System Standards, CCSDS
-120.0-G-3. Green Book. Issue 3. Washington, D.C.: CCSDS, April 2013.][2]
-[2]: https://public.ccsds.org/Pubs/120x0g3.pdf
+[1]: https://public.ccsds.org/Pubs/121x0b3.pdf
