@@ -1,5 +1,4 @@
-Getting libaec
-==============
+# Getting libaec
 
 The source code of libaec is hosted at DKRZ GitLab.
 
@@ -15,8 +14,7 @@ location:
   git clone https://gitlab.dkrz.de/k202009/libaec.git
 
 
-Installation
-============
+# Installation
 
 ## General considerations
 
@@ -64,18 +62,18 @@ used in Windows.
 ## Installation from cloned repository
 
 The configure script is not included in the repository. You can
-generate it with autotools:
+generate it with autotools and gnulib:
 
   cd libaec
-  autoreconv -iv
+  gnulib-tool --import lib-symbol-visibility
+  autoreconf -iv
   mkdir build
   cd build
   ../configure
   make check install
 
 
-Intel compiler settings
-=======================
+# Intel compiler settings
 
 The Intel compiler can improve performance by vectorizing certain
 parts of the code on x86 architectures. Assuming your CPU supports
