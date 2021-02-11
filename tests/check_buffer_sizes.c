@@ -87,7 +87,8 @@ int main (void)
 
     if (!state.ubuf || !state.cbuf || !state.obuf) {
         printf("Not enough memory.\n");
-        return 99;
+        status = 99;
+        goto DESTRUCT;
     }
 
     strm.flags = AEC_DATA_PREPROCESS;
@@ -100,9 +101,12 @@ int main (void)
         goto DESTRUCT;
 
 DESTRUCT:
-    free(state.ubuf);
-    free(state.cbuf);
-    free(state.obuf);
+    if (state.ubuf)
+        free(state.ubuf);
+    if (state.cbuf)
+        free(state.cbuf);
+    if (state.obuf)
+        free(state.obuf);
 
     return status;
 }

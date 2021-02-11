@@ -56,14 +56,33 @@ int get_param(unsigned int *param, int *iarg, char *argv[])
     return 0;
 }
 
+void usage(void)
+{
+    fprintf(stderr, "NAME\n\taec - encode or decode files ");
+    fprintf(stderr, "with Adaptive Entropy Coding\n\n");
+    fprintf(stderr, "SYNOPSIS\n\taec [OPTION]... SOURCE DEST\n");
+    fprintf(stderr, "\nOPTIONS\n");
+    fprintf(stderr, "\t-3\n\t\t24 bit samples are stored in 3 bytes\n");
+    fprintf(stderr, "\t-N\n\t\tdisable pre/post processing\n");
+    fprintf(stderr, "\t-b size\n\t\tinternal buffer size in bytes\n");
+    fprintf(stderr, "\t-d\n\t\tdecode SOURCE. If -d is not used: encode.\n");
+    fprintf(stderr, "\t-j samples\n\t\tblock size in samples\n");
+    fprintf(stderr, "\t-m\n\t\tsamples are MSB first. Default is LSB\n");
+    fprintf(stderr, "\t-n bits\n\t\tbits per sample\n");
+    fprintf(stderr, "\t-p\n\t\tpad RSI to byte boundary\n");
+    fprintf(stderr, "\t-r blocks\n\t\treference sample interval in blocks\n");
+    fprintf(stderr, "\t-s\n\t\tsamples are signed. Default is unsigned\n");
+    fprintf(stderr, "\t-t\n\t\tuse restricted set of code options\n\n");
+}
+
 int main(int argc, char *argv[])
 {
     struct aec_stream strm;
-    unsigned char *in;
-    unsigned char *out;
+    unsigned char *in = NULL;
+    unsigned char *out = NULL;
     size_t total_out;
     unsigned int chunk;
-    int status;
+    int status = 0;
     int input_avail, output_avail;
     char *infn, *outfn;
     FILE *infp, *outfp;
@@ -81,8 +100,10 @@ int main(int argc, char *argv[])
 
     while (iarg < argc - 2) {
         opt = argv[iarg];
-        if (opt[0] != '-')
-            goto FAIL;
+        if (opt[0] != '-') {
+            usage();
+            goto DESTRUCT;
+        }
         switch (opt[1]) {
         case '3':
             strm.flags |= AEC_DATA_3BYTE;
@@ -91,29 +112,37 @@ int main(int argc, char *argv[])
             strm.flags &= ~AEC_DATA_PREPROCESS;
             break;
         case 'b':
-            if (get_param(&chunk, &iarg, argv))
-                goto FAIL;
+            if (get_param(&chunk, &iarg, argv)) {
+                usage();
+                goto DESTRUCT;
+            }
             break;
         case 'd':
             dflag = 1;
             break;
         case 'j':
-            if (get_param(&strm.block_size, &iarg, argv))
-                goto FAIL;
+            if (get_param(&strm.block_size, &iarg, argv)) {
+                usage();
+                goto DESTRUCT;
+            }
             break;
         case 'm':
             strm.flags |= AEC_DATA_MSB;
             break;
         case 'n':
-            if (get_param(&strm.bits_per_sample, &iarg, argv))
-                goto FAIL;
+            if (get_param(&strm.bits_per_sample, &iarg, argv)) {
+                usage();
+                goto DESTRUCT;
+            }
             break;
         case 'p':
             strm.flags |= AEC_PAD_RSI;
             break;
         case 'r':
-            if (get_param(&strm.rsi, &iarg, argv))
-                goto FAIL;
+            if (get_param(&strm.rsi, &iarg, argv)) {
+                usage();
+                goto DESTRUCT;
+            }
             break;
         case 's':
             strm.flags |= AEC_DATA_SIGNED;
@@ -122,13 +151,16 @@ int main(int argc, char *argv[])
             strm.flags |= AEC_RESTRICTED;
             break;
         default:
-            goto FAIL;
+            usage();
+            goto DESTRUCT;
         }
         iarg++;
     }
 
-    if (argc - iarg < 2)
-        goto FAIL;
+    if (argc - iarg < 2) {
+        usage();
+        goto DESTRUCT;
+    }
 
     infn = argv[iarg];
     outfn = argv[iarg + 1];
@@ -145,8 +177,10 @@ int main(int argc, char *argv[])
     out = (unsigned char *)malloc(chunk);
     in = (unsigned char *)malloc(chunk);
 
-    if (in == NULL || out == NULL)
-        exit(-1);
+    if (in == NULL || out == NULL) {
+        status = 99;
+        goto DESTRUCT;
+    }
 
     total_out = 0;
     strm.avail_in = 0;
@@ -158,11 +192,13 @@ int main(int argc, char *argv[])
 
     if ((infp = fopen(infn, "rb")) == NULL) {
         fprintf(stderr, "ERROR: cannot open input file %s\n", infn);
-        return 1;
+        status = 99;
+        goto DESTRUCT;
     }
     if ((outfp = fopen(outfn, "wb")) == NULL) {
         fprintf(stderr, "ERROR: cannot open output file %s\n", infn);
-        return 1;
+        status = 99;
+        goto DESTRUCT;
     }
 
     if (dflag)
@@ -172,7 +208,7 @@ int main(int argc, char *argv[])
 
     if (status != AEC_OK) {
         fprintf(stderr, "ERROR: initialization failed (%d)\n", status);
-        return 1;
+        goto DESTRUCT;
     }
 
     while(input_avail || output_avail) {
@@ -190,7 +226,7 @@ int main(int argc, char *argv[])
 
         if (status != AEC_OK) {
             fprintf(stderr, "ERROR: %i\n", status);
-            return 1;
+            goto DESTRUCT;
         }
 
         if (strm.total_out - total_out > 0) {
@@ -210,7 +246,7 @@ int main(int argc, char *argv[])
     } else {
         if ((status = aec_encode(&strm, AEC_FLUSH)) != AEC_OK) {
             fprintf(stderr, "ERROR: while flushing output (%i)\n", status);
-            return 1;
+            goto DESTRUCT;
         }
 
         if (strm.total_out - total_out > 0)
@@ -221,25 +257,11 @@ int main(int argc, char *argv[])
 
     fclose(infp);
     fclose(outfp);
-    free(in);
-    free(out);
-    return 0;
 
-FAIL:
-    fprintf(stderr, "NAME\n\taec - encode or decode files ");
-    fprintf(stderr, "with Adaptive Entropy Coding\n\n");
-    fprintf(stderr, "SYNOPSIS\n\taec [OPTION]... SOURCE DEST\n");
-    fprintf(stderr, "\nOPTIONS\n");
-    fprintf(stderr, "\t-3\n\t\t24 bit samples are stored in 3 bytes\n");
-    fprintf(stderr, "\t-N\n\t\tdisable pre/post processing\n");
-    fprintf(stderr, "\t-b size\n\t\tinternal buffer size in bytes\n");
-    fprintf(stderr, "\t-d\n\t\tdecode SOURCE. If -d is not used: encode.\n");
-    fprintf(stderr, "\t-j samples\n\t\tblock size in samples\n");
-    fprintf(stderr, "\t-m\n\t\tsamples are MSB first. Default is LSB\n");
-    fprintf(stderr, "\t-n bits\n\t\tbits per sample\n");
-    fprintf(stderr, "\t-p\n\t\tpad RSI to byte boundary\n");
-    fprintf(stderr, "\t-r blocks\n\t\treference sample interval in blocks\n");
-    fprintf(stderr, "\t-s\n\t\tsamples are signed. Default is unsigned\n");
-    fprintf(stderr, "\t-t\n\t\tuse restricted set of code options\n\n");
-    return 1;
+DESTRUCT:
+    if (in)
+        free(in);
+    if (out)
+        free(out);
+    return status;
 }

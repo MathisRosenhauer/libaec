@@ -11,9 +11,11 @@
 
 int main(int argc, char *argv[])
 {
-    int status;
+    int status = 0;
     SZ_com_t sz_param;
-    unsigned char *source, *dest, *dest1;
+    unsigned char *source = NULL;
+    unsigned char *dest = NULL;
+    unsigned char *dest1 = NULL;
     size_t destLen, dest1Len, sourceLen;
     FILE *fp;
 
@@ -40,27 +42,33 @@ int main(int argc, char *argv[])
     dest = (unsigned char *)malloc(destLen);
     dest1 = (unsigned char *)malloc(destLen);
 
-    if (source == NULL || dest == NULL || dest1 == NULL)
-        return 1;
+    if (source == NULL || dest == NULL || dest1 == NULL) {
+        status = 99;
+        goto DESTRUCT;
+    }
 
     sourceLen = fread(source, 1, sourceLen, fp);
 
     status = SZ_BufftoBuffCompress(dest, &destLen,
                                    source, sourceLen, &sz_param);
     if (status != SZ_OK)
-        return status;
+        goto DESTRUCT;
 
     dest1Len = sourceLen;
     status = SZ_BufftoBuffDecompress(dest1, &dest1Len,
                                      dest, destLen, &sz_param);
     if (status != SZ_OK)
-        return status;
+        goto DESTRUCT;
 
     if (memcmp(source, dest1, sourceLen) != 0)
         fprintf(stderr, "File %s Buffers differ\n", argv[2]);
 
-    free(source);
-    free(dest);
-    free(dest1);
-    return 0;
+DESTRUCT:
+    if (source)
+        free(source);
+    if (dest)
+        free(dest);
+    if (dest1)
+        free(dest1);
+    return status;
 }

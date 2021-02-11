@@ -303,7 +303,8 @@ int main(int argc, char *argv[])
 
     if (!state.ubuf || !state.cbuf || !state.obuf) {
         printf("Not enough memory.\n");
-        return 99;
+        status = 99;
+        goto DESTRUCT;
     }
 
     strm.flags = 0;
@@ -324,9 +325,12 @@ int main(int argc, char *argv[])
     status = check_byte_orderings(&state);
 
 DESTRUCT:
-    free(state.ubuf);
-    free(state.cbuf);
-    free(state.obuf);
+    if (state.ubuf)
+        free(state.ubuf);
+    if (state.cbuf)
+        free(state.cbuf);
+    if (state.obuf)
+        free(state.obuf);
 
     return status;
 }
