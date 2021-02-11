@@ -1,5 +1,5 @@
 AUTOMAKE_OPTIONS = color-tests
-AM_CPPFLAGS = -I$(top_srcdir)/src
+AM_CPPFLAGS = -I$(top_srcdir)/include
 TESTS = check_code_options check_buffer_sizes check_long_fs \
 szcomp.sh sampledata.sh
 TEST_EXTENSIONS = .sh
@@ -10,15 +10,15 @@ check_PROGRAMS = check_code_options check_buffer_sizes check_long_fs \
 check_szcomp
 
 check_code_options_SOURCES = check_code_options.c check_aec.h \
-$(top_srcdir)/src/libaec.h
+$(top_srcdir)/include/libaec.h
 
 check_buffer_sizes_SOURCES = check_buffer_sizes.c check_aec.h \
-$(top_srcdir)/src/libaec.h
+$(top_srcdir)/include/libaec.h
 
 check_long_fs_SOURCES = check_long_fs.c check_aec.h \
-$(top_srcdir)/src/libaec.h
+$(top_srcdir)/include/libaec.h
 
-check_szcomp_SOURCES = check_szcomp.c $(top_srcdir)/src/szlib.h
+check_szcomp_SOURCES = check_szcomp.c $(top_srcdir)/include/szlib.h
 
 LDADD = libcheck_aec.la $(top_builddir)/src/libaec.la
 check_szcomp_LDADD = $(top_builddir)/src/libsz.la

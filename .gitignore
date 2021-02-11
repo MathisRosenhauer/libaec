@@ -16,5 +16,5 @@ libtool
 autom4te.cache
 .DS_Store
 build*
-m4/libtool.m4
-m4/lt*
+m4/*
+lib/*

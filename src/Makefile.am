@@ -1,5 +1,5 @@
 AM_CFLAGS = $(CFLAG_VISIBILITY)
-AM_CPPFLAGS = -DBUILDING_LIBAEC
+AM_CPPFLAGS = -I$(top_srcdir)/include -DBUILDING_LIBAEC
 lib_LTLIBRARIES = libaec.la libsz.la
 libaec_la_SOURCES = encode.c encode_accessors.c decode.c \
 encode.h encode_accessors.h decode.h
@@ -9,7 +9,7 @@ libsz_la_SOURCES = sz_compat.c
 libsz_la_LIBADD = libaec.la
 libsz_la_LDFLAGS = -version-info 2:1:0 -no-undefined
 
-include_HEADERS = libaec.h szlib.h
+include_HEADERS = $(top_srcdir)/include/libaec.h $(top_srcdir)/include/szlib.h
 
 bin_PROGRAMS = aec
 noinst_PROGRAMS = utime

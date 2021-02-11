@@ -32,7 +32,7 @@
  * @section DESCRIPTION
  *
  * Adaptive Entropy Decoder
- * Based on CCSDS documents 121.0-B-2 and 120.0-G-3
+ * Based on the CCSDS recommended standard 121.0-B-3
  *
  */
 

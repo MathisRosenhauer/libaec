@@ -32,7 +32,7 @@
  * @section DESCRIPTION
  *
  * Adaptive Entropy Encoder
- * Based on CCSDS documents 121.0-B-2 and 120.0-G-3
+ * Based on the CCSDS recommended standard 121.0-B-3
  *
  */
 
@@ -315,7 +315,7 @@ static uint32_t assess_splitting_option(struct aec_stream *strm)
        In Rice coding each sample in a block of samples is split at
        the same position into k LSB and bits_per_sample - k MSB. The
        LSB part is left binary and the MSB part is coded as a
-       fundamental sequence a.k.a. unary (see CCSDS 121.0-B-2). The
+       fundamental sequence a.k.a. unary (see CCSDS 121.0-B-3). The
        function of the length of the Coded Data Set (CDS) depending on
        k has exactly one minimum (see A. Kiely, IPN Progress Report
        42-159).

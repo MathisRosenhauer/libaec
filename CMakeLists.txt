@@ -1,87 +1,84 @@
-cmake_minimum_required(VERSION 3.1)
+cmake_minimum_required(VERSION 3.13...3.19)
+project(libaec LANGUAGES C VERSION 1.0.4)
+option(BUILD_SHARED_LIBS "Build using shared libraries" ON)
+
+# Automatically export symbls for Windows DLLs
+set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
+
 set(CMAKE_C_STANDARD 99)
-include(CheckIncludeFiles)
-include(TestBigEndian)
-include(CheckCSourceCompiles)
-include(CheckSymbolExists)
-include(cmake/macros.cmake)
-
-option(AEC_FUZZING "Enable build of fuzzing targets" OFF)
-if(AEC_FUZZING)
-  project(libaec C CXX)
-else(AEC_FUZZING)
-  project(libaec C)
-endif(AEC_FUZZING)
-
-set(libaec_VERSION_MAJOR 1)
-set(libaec_VERSION_MINOR 0)
-set(libaec_VERSION_PATCH 4)
-set(CMAKE_BUILD_TYPE Release)
+set(CMAKE_C_VISIBILITY_PRESET hidden)
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 enable_testing()
 
-check_include_files(malloc.h HAVE_MALLOC_H)
+include(TestBigEndian)
 test_big_endian(WORDS_BIGENDIAN)
-check_clzll(HAVE_DECL___BUILTIN_CLZLL)
-if(NOT HAVE_DECL___BUILTIN_CLZLL)
-  check_bsr64(HAVE_BSR64)
-endif(NOT HAVE_DECL___BUILTIN_CLZLL)
-find_inline_keyword()
-find_restrict_keyword()
 
+# Check for __builtin_clzll for faster decoding
+include(CheckCSourceCompiles)
+check_c_source_compiles(
+  "int main(void)\n{return __builtin_clzll(1LL);}"
+  HAVE_DECL___BUILTIN_CLZLL)
+
+if(NOT HAVE_DECL___BUILTIN_CLZLL)
+  # With MSVC we can use _BitScanReverse64
+  check_c_source_compiles(
+    "int main(void){unsigned long foo; unsigned __int64 bar=1LL;
+return _BitScanReverse64(&foo, bar);}"
+    HAVE_BSR64)
+endif()
+
+include(CheckSymbolExists)
 check_symbol_exists(snprintf "stdio.h" HAVE_SNPRINTF)
 if(NOT HAVE_SNPRINTF)
   check_symbol_exists(_snprintf "stdio.h" HAVE__SNPRINTF)
   check_symbol_exists(_snprintf_s "stdio.h" HAVE__SNPRINTF_S)
-endif(NOT HAVE_SNPRINTF)
+endif()
 
+# Communicate findings to code. Has to be compatible with autoconf's config.h.
 configure_file(
-  ${CMAKE_CURRENT_SOURCE_DIR}/cmake/config.h.in
-  ${CMAKE_CURRENT_BINARY_DIR}/config.h)
+  "cmake/config.h.in"
+  "${CMAKE_CURRENT_BINARY_DIR}/config.h")
 add_definitions("-DHAVE_CONFIG_H")
-
-option(BUILD_SHARED_LIBS "Build Shared Libraries" ON)
-if(BUILD_SHARED_LIBS)
-  set (LIB_TYPE SHARED)
-else(BUILD_SHARED_LIBS)
-  set(LIB_TYPE STATIC)
-endif(BUILD_SHARED_LIBS)
-
-set(libaec_SRCS
-  ${PROJECT_SOURCE_DIR}/src/encode.c
-  ${PROJECT_SOURCE_DIR}/src/encode_accessors.c
-  ${PROJECT_SOURCE_DIR}/src/decode.c)
-
-include_directories("${PROJECT_BINARY_DIR}")
-include_directories("${PROJECT_SOURCE_DIR}/src")
 
 add_subdirectory(src)
 add_subdirectory(tests)
+
+option(AEC_FUZZING "Enable build of fuzzing target" OFF)
 if(AEC_FUZZING)
+  enable_language(CXX)
+
+  if(NOT CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+    message(FATAL_ERROR "You need to build with Clang for fuzzing to work")
+  endif()
+
+  if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS "6.0.0")
+    message(FATAL_ERROR "You need Clang ≥ 6.0.0")
+  endif()
+
   add_subdirectory(fuzzing)
+  set(FUZZ_TARGET_SAN_FLAGS -fsanitize=fuzzer-no-link,address,undefined)
+  target_compile_options(aec PUBLIC -g -O1 ${FUZZ_TARGET_SAN_FLAGS})
+  target_link_options(aec PUBLIC ${FUZZ_TARGET_SAN_FLAGS})
 endif()
 
+# Cpack configuration mainly for Windows installer
 set(CPACK_PACKAGE_NAME "libaec")
 set(CPACK_PACKAGE_VENDOR "Deutsches Klimarechenzentrum GmbH")
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY
   "libaec - Adaptive Entropy Coding library")
-set(CPACK_PACKAGE_VERSION_MAJOR "${libaec_VERSION_MAJOR}")
-set(CPACK_PACKAGE_VERSION_MINOR "${libaec_VERSION_MINOR}")
-set(CPACK_PACKAGE_VERSION_PATCH "${libaec_VERSION_PATCH}")
 set(CPACK_PACKAGE_INSTALL_DIRECTORY "libaec")
-set(CPACK_RESOURCE_FILE_LICENSE "${PROJECT_SOURCE_DIR}/Copyright.txt")
+set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE.txt")
 
 if(WIN32)
   set(CPACK_GENERATOR "WIX")
   set(CPACK_WIX_UPGRADE_GUID "E58A21F6-BB99-46B5-8AD8-6114E4CCA0A6")
-  if(CMAKE_CL_64)
-    set(CPACK_INSTALL_DIRECTORY "$PROGRAMFILES64")
-    set(CPACK_PACKAGE_INSTALL_REGISTRY_KEY
-      "${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION} (Win64)")
-  else(CMAKE_CL_64)
-    set(CPACK_INSTALL_DIRECTORY "$PROGRAMFILES")
-    set(CPACK_PACKAGE_INSTALL_REGISTRY_KEY
-      "${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION}")
-  endif(CMAKE_CL_64)
-endif(WIN32)
+endif()
+
+set(CPACK_SOURCE_IGNORE_FILES
+    /.git
+    /.*build.*
+    .*~
+    .*\#.*\#
+    \..*\#.*)
 
 include(CPack)
