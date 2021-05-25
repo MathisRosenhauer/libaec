@@ -1,5 +1,5 @@
 @PACKAGE_INIT@
 
-include("${CMAKE_CURRENT_LIST_DIR}/LibaecTargets.cmake")
+include("${CMAKE_CURRENT_LIST_DIR}/libaecTargets.cmake")
 
 check_required_components(libaec)

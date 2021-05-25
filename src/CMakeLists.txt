@@ -62,24 +62,24 @@ if(UNIX)
 endif()
 
 install(TARGETS aec sz aec_client
-  EXPORT LibaecTargets)
+  EXPORT libaecTargets)
 
-install(EXPORT LibaecTargets
-  FILE LibaecTargets.cmake
+install(EXPORT libaecTargets
+  FILE libaecTargets.cmake
   NAMESPACE libaec::
   DESTINATION lib/cmake)
 
 include(CMakePackageConfigHelpers)
 configure_package_config_file(${CMAKE_CURRENT_SOURCE_DIR}/../Config.cmake.in
-  "${CMAKE_CURRENT_BINARY_DIR}/LibaecConfig.cmake"
+  "${CMAKE_CURRENT_BINARY_DIR}/libaecConfig.cmake"
   INSTALL_DESTINATION lib/cmake)
 
 # generate the version file for the config file
 write_basic_package_version_file(
-  "${CMAKE_CURRENT_BINARY_DIR}/LibaecConfigVersion.cmake"
+  "${CMAKE_CURRENT_BINARY_DIR}/libaecConfigVersion.cmake"
   COMPATIBILITY AnyNewerVersion)
 
 install(FILES
-  "${CMAKE_CURRENT_BINARY_DIR}/LibaecConfig.cmake"
-  "${CMAKE_CURRENT_BINARY_DIR}/LibaecConfigVersion.cmake"
+  "${CMAKE_CURRENT_BINARY_DIR}/libaecConfig.cmake"
+  "${CMAKE_CURRENT_BINARY_DIR}/libaecConfigVersion.cmake"
   DESTINATION lib/cmake)
