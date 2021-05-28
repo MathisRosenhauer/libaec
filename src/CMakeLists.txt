@@ -1,9 +1,8 @@
 # Main library aec
-add_library(aec
+add_library(aec OBJECT
   encode.c
   encode_accessors.c
   decode.c)
-add_library(libaec::aec ALIAS aec)
 
 target_include_directories(aec
   PUBLIC
@@ -11,23 +10,41 @@ target_include_directories(aec
   "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/..>"
   "$<INSTALL_INTERFACE:include>")
 
-set_target_properties(aec
+# Create both static and shared aec library.
+add_library(aec_static STATIC "$<TARGET_OBJECTS:aec>")
+target_link_libraries(aec_static PUBLIC aec)
+set_target_properties(aec_static
+  PROPERTIES
+  OUTPUT_NAME $<IF:$<BOOL:${WIN32}>,aec_static,aec>)
+
+add_library(aec_shared SHARED "$<TARGET_OBJECTS:aec>")
+target_link_libraries(aec_shared PUBLIC aec)
+set_target_properties(aec_shared
   PROPERTIES
   VERSION 0.0.10
   SOVERSION 0
+  OUTPUT_NAME aec
   PUBLIC_HEADER ../include/libaec.h)
 
 # Wrapper for compatibility with szip
-add_library(sz sz_compat.c)
-add_library(libaec::sz ALIAS sz)
+add_library(sz OBJECT sz_compat.c)
+target_link_libraries(sz PUBLIC aec)
 
-set_target_properties(sz
+# Create both static and shared szip library.
+add_library(sz_static STATIC "$<TARGET_OBJECTS:sz>" "$<TARGET_OBJECTS:aec>")
+set_target_properties(sz_static
+  PROPERTIES
+  OUTPUT_NAME $<IF:$<BOOL:${WIN32}>,szip_static,sz>)
+target_link_libraries(sz_static PUBLIC sz)
+
+add_library(sz_shared SHARED "$<TARGET_OBJECTS:sz>" "$<TARGET_OBJECTS:aec>")
+target_link_libraries(sz_shared PUBLIC sz)
+set_target_properties(sz_shared
   PROPERTIES
   VERSION 2.0.1
   SOVERSION 2
   OUTPUT_NAME $<IF:$<BOOL:${WIN32}>,szip,sz>
   PUBLIC_HEADER ../include/szlib.h)
-target_link_libraries(sz PUBLIC aec)
 
 # Simple client for testing and benchmarking.
 # Can also be used stand-alone
@@ -61,25 +78,4 @@ if(UNIX)
     COMPONENT doc)
 endif()
 
-install(TARGETS aec sz aec_client
-  EXPORT LibaecTargets)
-
-install(EXPORT LibaecTargets
-  FILE LibaecTargets.cmake
-  NAMESPACE libaec::
-  DESTINATION lib/cmake)
-
-include(CMakePackageConfigHelpers)
-configure_package_config_file(${CMAKE_CURRENT_SOURCE_DIR}/../Config.cmake.in
-  "${CMAKE_CURRENT_BINARY_DIR}/LibaecConfig.cmake"
-  INSTALL_DESTINATION lib/cmake)
-
-# generate the version file for the config file
-write_basic_package_version_file(
-  "${CMAKE_CURRENT_BINARY_DIR}/LibaecConfigVersion.cmake"
-  COMPATIBILITY AnyNewerVersion)
-
-install(FILES
-  "${CMAKE_CURRENT_BINARY_DIR}/LibaecConfig.cmake"
-  "${CMAKE_CURRENT_BINARY_DIR}/LibaecConfigVersion.cmake"
-  DESTINATION lib/cmake)
+install(TARGETS aec_static aec_shared sz_static sz_shared aec_client)

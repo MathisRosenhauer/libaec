@@ -1,8 +1,7 @@
 cmake_minimum_required(VERSION 3.13...3.19)
-project(libaec LANGUAGES C VERSION 1.0.4)
-option(BUILD_SHARED_LIBS "Build using shared libraries" ON)
+project(libaec LANGUAGES C VERSION 1.0.5)
 
-# Automatically export symbls for Windows DLLs
+# Automatically export symbols for Windows DLLs
 set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
 
 set(CMAKE_C_STANDARD 99)
@@ -60,6 +59,18 @@ if(AEC_FUZZING)
   target_compile_options(aec PUBLIC -g -O1 ${FUZZ_TARGET_SAN_FLAGS})
   target_link_options(aec PUBLIC ${FUZZ_TARGET_SAN_FLAGS})
 endif()
+
+# Install the cmake files.
+set(libaec_CONFIG_IN  ${CMAKE_CURRENT_SOURCE_DIR}/cmake/libaec-config.cmake.in)
+set(libaec_CONFIG_OUT ${CMAKE_CURRENT_BINARY_DIR}/cmake/libaec-config.cmake)
+configure_file(${libaec_CONFIG_IN} ${libaec_CONFIG_OUT} @ONLY)
+set(libaec_CONFIG_VERSION_IN  ${CMAKE_CURRENT_SOURCE_DIR}/cmake/libaec-config-version.cmake.in)
+set(libaec_CONFIG_VERSION_OUT ${CMAKE_CURRENT_BINARY_DIR}/cmake/libaec-config-version.cmake)
+configure_file(${libaec_CONFIG_VERSION_IN} ${libaec_CONFIG_VERSION_OUT} @ONLY)
+install(FILES ${libaec_CONFIG_OUT}
+        DESTINATION cmake)
+install(FILES ${libaec_CONFIG_VERSION_OUT}
+        DESTINATION cmake)
 
 # Cpack configuration mainly for Windows installer
 set(CPACK_PACKAGE_NAME "libaec")
