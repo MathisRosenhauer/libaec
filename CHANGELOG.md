@@ -13,7 +13,9 @@ All notable changes to libaec will be documented in this file.
   the library and compressed data produced by this version can be
   uncompressed with previous versions.
 
-- Improvements to the build process and further documentation fixes.
+- Modernized CMake
+
+- Better CMake integration with HDF5 by Jan-Willem Blokland
 
 ## [1.0.4] - 2019-02-11
 

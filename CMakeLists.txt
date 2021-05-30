@@ -37,7 +37,6 @@ endif()
 configure_file(
   "cmake/config.h.in"
   "${CMAKE_CURRENT_BINARY_DIR}/config.h")
-add_definitions("-DHAVE_CONFIG_H")
 
 add_subdirectory(src)
 add_subdirectory(tests)

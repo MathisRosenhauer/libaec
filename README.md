@@ -29,7 +29,7 @@ As stated in section A3 of the current [standard][1]
 
 ## Installation
 
-See [INSTALL](INSTALL) for details.
+See [INSTALL.md](INSTALL.md) for details.
 
 ## SZIP Compatibility
 

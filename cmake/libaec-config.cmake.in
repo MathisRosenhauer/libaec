@@ -4,7 +4,7 @@
 # Finds the AEC library, specify the starting search path in libaec_ROOT.
 #
 # Static vs. shared
-# ----------------- 
+# -----------------
 # To make use of the static library instead of the shared one, one needs
 # to set the variable libaec_USE_STATIC_LIBS to ON before calling find_package.
 # Example:
@@ -80,7 +80,7 @@ if (libaec_FOUND)
     IMPORTED_LOCATION "${SZIP_LIBRARY}"
     INTERFACE_INCLUDE_DIRECTORIES "${SZIP_INCLUDE_DIR}"
   )
-  
+
   # Set SZIP variables.
   set(SZIP_FOUND TRUE)
   set(SZIP_LIBRARIES "${SZIP_LIBRARY}")
