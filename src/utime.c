@@ -36,10 +36,6 @@
  * Simple timing command, since calling time(1) gives non-portable results.
  *
  */
-#ifdef HAVE_CONFIG_H
-#include "config.h"
-#endif
-
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
