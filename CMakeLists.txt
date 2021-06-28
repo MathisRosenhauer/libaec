@@ -7,7 +7,7 @@ set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
 set(CMAKE_C_STANDARD 99)
 set(CMAKE_C_VISIBILITY_PRESET hidden)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
-enable_testing()
+include(CTest)
 
 include(TestBigEndian)
 test_big_endian(WORDS_BIGENDIAN)
@@ -39,7 +39,9 @@ configure_file(
   "${CMAKE_CURRENT_BINARY_DIR}/config.h")
 
 add_subdirectory(src)
-add_subdirectory(tests)
+if(BUILD_TESTING)
+  add_subdirectory(tests)
+endif()
 
 option(AEC_FUZZING "Enable build of fuzzing target" OFF)
 if(AEC_FUZZING)

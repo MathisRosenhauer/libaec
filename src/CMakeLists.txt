@@ -15,7 +15,7 @@ add_library(aec_static STATIC "$<TARGET_OBJECTS:aec>")
 target_link_libraries(aec_static PUBLIC aec)
 set_target_properties(aec_static
   PROPERTIES
-  OUTPUT_NAME $<IF:$<BOOL:${WIN32}>,aec_static,aec>)
+  OUTPUT_NAME $<IF:$<BOOL:${MSVC}>,aec_static,aec>)
 
 add_library(aec_shared SHARED "$<TARGET_OBJECTS:aec>")
 target_link_libraries(aec_shared PUBLIC aec)
@@ -34,7 +34,7 @@ target_link_libraries(sz PUBLIC aec)
 add_library(sz_static STATIC "$<TARGET_OBJECTS:sz>" "$<TARGET_OBJECTS:aec>")
 set_target_properties(sz_static
   PROPERTIES
-  OUTPUT_NAME $<IF:$<BOOL:${WIN32}>,szip_static,sz>)
+  OUTPUT_NAME $<IF:$<BOOL:${MSVC}>,szip_static,sz>)
 target_link_libraries(sz_static PUBLIC sz)
 
 add_library(sz_shared SHARED "$<TARGET_OBJECTS:sz>" "$<TARGET_OBJECTS:aec>")
@@ -43,7 +43,7 @@ set_target_properties(sz_shared
   PROPERTIES
   VERSION 2.0.1
   SOVERSION 2
-  OUTPUT_NAME $<IF:$<BOOL:${WIN32}>,szip,sz>
+  OUTPUT_NAME $<IF:$<BOOL:${MSVC}>,szip,sz>
   PUBLIC_HEADER ../include/szlib.h)
 
 # Simple client for testing and benchmarking.
@@ -70,7 +70,9 @@ if(UNIX)
     ${CMAKE_CURRENT_SOURCE_DIR}/../data/typical.rz
     COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/bdec.sh
     DEPENDS aec_client utime)
+endif()
 
+if(UNIX OR MINGW)
   # Install manpage
   install(
     FILES aec.1
