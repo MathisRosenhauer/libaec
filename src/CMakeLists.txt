@@ -15,7 +15,7 @@ add_library(aec_static STATIC "$<TARGET_OBJECTS:aec>")
 target_link_libraries(aec_static PUBLIC aec)
 set_target_properties(aec_static
   PROPERTIES
-  OUTPUT_NAME $<IF:$<BOOL:${MSVC}>,aec_static,aec>)
+  OUTPUT_NAME $<IF:$<BOOL:${MSVC}>,aec-static,aec>)
 
 add_library(aec_shared SHARED "$<TARGET_OBJECTS:aec>")
 target_link_libraries(aec_shared PUBLIC aec)
@@ -34,7 +34,7 @@ target_link_libraries(sz PUBLIC aec)
 add_library(sz_static STATIC "$<TARGET_OBJECTS:sz>" "$<TARGET_OBJECTS:aec>")
 set_target_properties(sz_static
   PROPERTIES
-  OUTPUT_NAME $<IF:$<BOOL:${MSVC}>,szip_static,sz>)
+  OUTPUT_NAME $<IF:$<BOOL:${MSVC}>,szip-static,sz>)
 target_link_libraries(sz_static PUBLIC sz)
 
 add_library(sz_shared SHARED "$<TARGET_OBJECTS:sz>" "$<TARGET_OBJECTS:aec>")
