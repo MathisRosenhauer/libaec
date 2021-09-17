@@ -1,7 +1,12 @@
 # libaec Changelog
 All notable changes to libaec will be documented in this file.
 
-## [1.0.5]
+## [1.0.6] - 2021-09-17
+
+### Changed
+- Improved cmake for mingw by Miloš Komarčević
+
+## [1.0.5] - 2021-06-16
 
 ### Changed
 - Updated documentation to new 121.0-B-3 standard. The new standard

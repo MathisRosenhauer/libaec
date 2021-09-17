@@ -3,7 +3,7 @@ AM_CPPFLAGS = -I$(top_srcdir)/include -DBUILDING_LIBAEC
 lib_LTLIBRARIES = libaec.la libsz.la
 libaec_la_SOURCES = encode.c encode_accessors.c decode.c \
 encode.h encode_accessors.h decode.h
-libaec_la_LDFLAGS = -version-info 0:11:0 -no-undefined
+libaec_la_LDFLAGS = -version-info 0:12:0 -no-undefined
 
 libsz_la_SOURCES = sz_compat.c
 libsz_la_LIBADD = libaec.la

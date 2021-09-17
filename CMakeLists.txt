@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.13...3.19)
-project(libaec LANGUAGES C VERSION 1.0.5)
+project(libaec LANGUAGES C VERSION 1.0.6)
 
 # Automatically export symbols for Windows DLLs
 set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS TRUE)

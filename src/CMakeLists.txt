@@ -21,7 +21,7 @@ add_library(aec_shared SHARED "$<TARGET_OBJECTS:aec>")
 target_link_libraries(aec_shared PUBLIC aec)
 set_target_properties(aec_shared
   PROPERTIES
-  VERSION 0.0.11
+  VERSION 0.0.12
   SOVERSION 0
   OUTPUT_NAME aec
   PUBLIC_HEADER ../include/libaec.h)
