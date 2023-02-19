@@ -1,5 +1,14 @@
 AC_PREREQ([2.64])
-AC_INIT([libaec], [1.0.6], [rosenhauer@dkrz.de])
+
+m4_define([VERSION_MAJOR], [1])
+m4_define([VERSION_MINOR], [0])
+m4_define([VERSION_PATCH], [6])
+
+AC_INIT([libaec], [VERSION_MAJOR.VERSION_MINOR.VERSION_PATCH], [rosenhauer@dkrz.de])
+
+AC_SUBST(PROJECT_VERSION_MAJOR, [VERSION_MAJOR])
+AC_SUBST(PROJECT_VERSION_MINOR, [VERSION_MINOR])
+AC_SUBST(PROJECT_VERSION_PATCH, [VERSION_PATCH])
 
 AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_AUX_DIR([config])
@@ -30,5 +39,5 @@ AC_CHECK_DECLS(__builtin_clzll)
 
 AM_EXTRA_RECURSIVE_TARGETS([bench benc bdec])
 
-AC_CONFIG_FILES([Makefile src/Makefile tests/Makefile])
+AC_CONFIG_FILES([Makefile src/Makefile tests/Makefile include/libaec.h])
 AC_OUTPUT
