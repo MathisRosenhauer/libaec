@@ -36,7 +36,7 @@ endif()
 # Communicate findings to code. Has to be compatible with autoconf's config.h.
 configure_file(
   "cmake/config.h.in"
-  "${CMAKE_CURRENT_BINARY_DIR}/config.h")
+  "${CMAKE_CURRENT_BINARY_DIR}/include/config.h")
 
 # Create libaec.h with current version information
 configure_file(
