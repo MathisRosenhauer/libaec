@@ -1,5 +1,5 @@
 AUTOMAKE_OPTIONS = color-tests
-AM_CPPFLAGS = -I$(top_srcdir)/include
+AM_CPPFLAGS = -I$(top_srcdir)/include -I$(top_builddir)/include
 TESTS = check_code_options check_buffer_sizes check_long_fs \
 szcomp.sh sampledata.sh
 TEST_EXTENSIONS = .sh

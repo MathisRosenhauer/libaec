@@ -1,5 +1,6 @@
 AM_CFLAGS = $(CFLAG_VISIBILITY)
-AM_CPPFLAGS = -I$(top_srcdir)/include -DBUILDING_LIBAEC
+AM_CPPFLAGS = -I$(top_srcdir)/include -I$(top_builddir)/include \
+-DBUILDING_LIBAEC
 lib_LTLIBRARIES = libaec.la libsz.la
 libaec_la_SOURCES = encode.c encode_accessors.c decode.c \
 encode.h encode_accessors.h decode.h
