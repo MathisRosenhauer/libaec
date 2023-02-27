@@ -38,6 +38,11 @@ configure_file(
   "cmake/config.h.in"
   "${CMAKE_CURRENT_BINARY_DIR}/config.h")
 
+# Create libaec.h with current version information
+configure_file(
+  "include/libaec.h.in"
+  "${CMAKE_CURRENT_BINARY_DIR}/include/libaec.h")
+
 add_subdirectory(src)
 if(BUILD_TESTING)
   add_subdirectory(tests)
@@ -89,6 +94,7 @@ endif()
 set(CPACK_SOURCE_IGNORE_FILES
     /.git
     /.*build.*
+    /*.cache
     .*~
     .*\#.*\#
     \..*\#.*)

@@ -9,7 +9,7 @@ libsz_la_SOURCES = sz_compat.c
 libsz_la_LIBADD = libaec.la
 libsz_la_LDFLAGS = -version-info 2:1:0 -no-undefined
 
-include_HEADERS = $(top_srcdir)/include/libaec.h $(top_srcdir)/include/szlib.h
+include_HEADERS = $(top_builddir)/include/libaec.h $(top_srcdir)/include/szlib.h
 
 bin_PROGRAMS = aec
 noinst_PROGRAMS = utime

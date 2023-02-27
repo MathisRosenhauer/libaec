@@ -24,7 +24,7 @@ set_target_properties(aec_shared
   VERSION 0.0.12
   SOVERSION 0
   OUTPUT_NAME aec
-  PUBLIC_HEADER ../include/libaec.h)
+  PUBLIC_HEADER ${CMAKE_CURRENT_BINARY_DIR}/../include/libaec.h)
 
 # Wrapper for compatibility with szip
 add_library(sz OBJECT sz_compat.c)
