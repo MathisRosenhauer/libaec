@@ -91,6 +91,9 @@ output goes into `dest`.
 ...
 ```
 
+See [libaec.h](include/libaec.h) for a detailed description of all
+relevant structure members and constants.
+
 `block_size` can vary from 8 to 64 samples. Smaller blocks allow the
 compression to adapt more rapidly to changing source
 statistics. Larger blocks create less overhead but can be less
@@ -160,8 +163,13 @@ decoding.
 Encoded data will be written to the buffer submitted with
 `next_out`. The length of the compressed data is `total_out`.
 
-See libaec.h for a detailed description of all relevant structure
-members and constants.
+In rare cases, like for random data, `total_out` can be larger than
+the size of the input data `total_in`. The following should hold true
+even for pathological cases.
+
+```
+total_out <= total_in * 67 / 64 + 256
+```
 
 
 ## Decoding
