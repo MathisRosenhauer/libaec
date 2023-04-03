@@ -825,3 +825,30 @@ int aec_buffer_decode(struct aec_stream *strm)
     aec_decode_end(strm);
     return status;
 }
+
+int aec_buffer_seek(struct aec_stream *strm,
+                    size_t byte_offset,
+                    unsigned char bit_offset)
+{
+    struct internal_state *state = strm->state;
+
+    if (bit_offset > 7)
+        return AEC_CONF_ERROR;
+
+    if (strm->avail_in < byte_offset)
+        return AEC_MEM_ERROR;
+
+    strm->next_in += byte_offset;
+    strm->avail_in -= byte_offset;
+
+    if (bit_offset > 0) {
+        if (strm->avail_in < 1)
+            return AEC_MEM_ERROR;
+
+        state->acc = (uint64_t)strm->next_in[0];
+        state->bitp = 8 - bit_offset;
+        strm->next_in++;
+        strm->avail_in--;
+    }
+    return AEC_OK;
+}
