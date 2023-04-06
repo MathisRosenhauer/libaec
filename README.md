@@ -151,12 +151,12 @@ are no alignment requirements for these buffers.
 ### Flushing:
 
 `aec_encode` can be used in a streaming fashion by chunking input and
-output and specifying `AEC_NO_FLUSH`. The function will return if either
-the input runs empty or the output buffer is full. The calling
-function can check `avail_in` and `avail_out` to see what occurred. The
-last call to `aec_encode()` must set `AEC_FLUSH` to drain all
-output. [aec.c](src/aec.c) is an example of streaming usage of encoding and
-decoding.
+output and specifying `AEC_NO_FLUSH`. The function will return if
+either the input runs empty or the output buffer is full. The calling
+function can check `avail_in` and `avail_out` to see what
+occurred. The last call to `aec_encode()` must set `AEC_FLUSH` to
+drain all output. [graec.c](src/graec.c) is an example of streaming
+usage of encoding and decoding.
 
 ### Output:
 
