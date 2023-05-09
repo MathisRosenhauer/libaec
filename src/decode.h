@@ -42,6 +42,7 @@
 #include "config.h"
 #include <stdint.h>
 #include <stddef.h>
+#include "vector.h"
 
 #define M_CONTINUE 1
 #define M_EXIT 0
@@ -120,6 +121,9 @@ struct internal_state {
 
     /* table for decoding second extension option */
     int se_table[2 * (SE_TABLE_SIZE + 1)];
-} decode_state;
+
+    /* RSI table */
+    struct vector_t *offsets;
+};
 
 #endif /* DECODE_H */

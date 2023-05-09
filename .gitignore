@@ -18,3 +18,5 @@ autom4te.cache
 build*
 m4/*
 lib/*
+*snalyzerinfo
+*analyzerinfo

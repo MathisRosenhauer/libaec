@@ -225,6 +225,109 @@ zero blocks. The output data must therefore be truncated to the
 correct length. This can also be achieved by providing an output
 buffer of just the correct length.
 
+### Decoding data ranges
+
+The Libaec library has functionality that allows individual data areas to be decoded without having to decode the entire file. 
+This allows efficient access to the data.
+
+This is possible because AEC-encoded data consists of independent blocks.
+It is, therefore, possible to decode individual blocks if their offsets are known.
+The Libaec library can capture the offsets when encoding or decoding the data and make them available to the user.
+
+The following example shows how to obtain the offsets.
+
+```c
+#include <libaec.h>
+
+...
+    struct aec_stream strm;
+    int32_t *source;
+    unsigned char *dest;
+    size_t count_offsets;
+    size_t *offsets;
+
+    strm.bits_per_sample = 32;
+    strm.block_size = 16;
+    strm.rsi = 128;
+    strm.flags = AEC_DATA_SIGNED | AEC_DATA_PREPROCESS;
+    strm.next_in = (unsigned char *)source;
+    strm.avail_in = source_length * sizeof(int32_t);
+    strm.next_out = dest;
+    strm.avail_out = dest_length;
+    if (aec_encode_init(&strm) != AEC_OK)
+        return 1;
+    /* Enable RSI offsets */
+    if (aec_encode_enable_offsets(&strm) != AEC_OK)
+        return 1;
+    if (aec_encode(&strm, AEC_FLUSH) != AEC_OK)
+        return 1;
+    /* Count RSI offsets */
+    if (aec_encode_count_offsets(&strm, &count_offsets) != AEC_OK)
+        return 1;
+    offsets = malloc(count_offsets * sizeof(*offsets));
+    /* Get RSI offsets */
+    if (aec_encode_get_offsets(&strm, offsets, offsets_count) != AEC_OK)
+        return 1;
+
+    aec_encode_end(&strm);
+    free(offsets);
+...
+```
+
+The offsets can then be used to decode ranges of data.
+The procedure is similar to the previous section, but use aec_decode_range() instead of aec_decode() and pass the offsets and the range as parameters. 
+The decoded ranges are written to the buffer as a stream. 
+When decoding the ranges into the individual buffers, set strm.total_out to zero.
+
+```c
+#include <libaec.h>
+
+...
+    struct aec_stream strm;
+    unsigned char *source;
+    int32_t *dest;
+    /* Suppose we got the offsets from the previous step */
+    size_t count_offsets;
+    size_t *offsets;
+
+    strm.bits_per_sample = 32;
+    strm.block_size = 16;
+    strm.rsi = 128;
+    strm.flags = AEC_DATA_SIGNED | AEC_DATA_PREPROCESS;
+    strm.next_in = (unsigned char *)source;
+    strm.avail_in = source_length * sizeof(int32_t);
+    strm.next_out = dest;
+    strm.avail_out = dest_length;
+
+    if (aec_decode_init(&strm))
+        return 1;
+
+    /* Decode data as stream of ranges*/
+    if (aec_decode_range(&strm, offsets, count_offsets, 12, 16);
+        return 1;
+    if (aec_decode_range(&strm, offsets, count_offsets, 244, 255);
+        return 1;
+
+    /* Decode data ranges to individual buffers */
+    strm.avail_out = 12
+    unsigned char buf_a[strm.avail_out];
+    strm.next_out = buf_a;
+    strm.total_out = 0;
+    if (aec_decode_range(&strm, offsets, count_offsets, 12, strm.avail_out);
+        return 1;
+
+    strm.avail_out = 255;
+    unsigned char buf_b[strm.avail_out];
+    strm.next_out = buf_b;
+    strm.total_out = 0;
+    if (aec_decode_range(&strm, offsets, count_offsets, 244, strm.avail_out);
+        return 1;
+
+    aec_decode_end(&strm);
+...
+```
+
+
 ## References
 
 [Lossless Data Compression. Recommendation for Space Data System

@@ -1,9 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
 #include "check_aec.h"
 
 #define BUF_SIZE 1024 * 3
+
 
 void shift_cdata(struct test_state *state, unsigned char *cbuf_unshifted,
                  int byte_offset, int bit_offset)
@@ -113,7 +115,7 @@ int encode_decode_large_seek(struct test_state *state)
                 printf("Init failed.\n");
                 return 99;
             }
-            status = aec_buffer_seek(strm, byte_offset, bit_offset);
+            status = aec_buffer_seek(strm, byte_offset * 8 + bit_offset);
             if (status != AEC_OK) {
                 printf("Seeking failed.\n");
                 return 99;

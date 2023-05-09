@@ -1,8 +1,10 @@
 add_library(check_aec STATIC check_aec.c)
 target_link_libraries(check_aec PUBLIC aec)
+
 add_executable(check_code_options check_code_options.c)
 target_link_libraries(check_code_options PUBLIC check_aec aec)
 add_test(NAME check_code_options COMMAND check_code_options)
+
 add_executable(check_buffer_sizes check_buffer_sizes.c)
 target_link_libraries(check_buffer_sizes PUBLIC check_aec aec)
 add_test(NAME check_buffer_sizes COMMAND check_buffer_sizes)
@@ -12,10 +14,15 @@ add_test(NAME check_seeking COMMAND check_seeking)
 add_executable(check_long_fs check_long_fs.c)
 target_link_libraries(check_long_fs PUBLIC check_aec aec)
 add_test(NAME check_long_fs COMMAND check_long_fs)
+
 add_executable(check_szcomp check_szcomp.c)
 target_link_libraries(check_szcomp PUBLIC check_aec sz)
 add_test(NAME check_szcomp
   COMMAND check_szcomp ${PROJECT_SOURCE_DIR}/data/121B2TestData/ExtendedParameters/sar32bit.dat)
+
+add_executable(check_rsi_block_access check_rsi_block_access.c)
+target_link_libraries(check_rsi_block_access PUBLIC check_aec aec)
+add_test(NAME check_rsi_block_access COMMAND check_rsi_block_access)
 
 if(UNIX)
   add_test(

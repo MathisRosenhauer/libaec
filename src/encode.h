@@ -39,6 +39,7 @@
 #ifndef ENCODE_H
 #define ENCODE_H 1
 
+#include "vector.h"
 #include "config.h"
 #include <stdint.h>
 
@@ -140,6 +141,8 @@ struct internal_state {
 
     /* length of uncompressed CDS */
     uint32_t uncomp_len;
+
+    struct vector_t *offsets;
 };
 
 #endif /* ENCODE_H */

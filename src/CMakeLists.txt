@@ -2,7 +2,8 @@
 add_library(aec OBJECT
   encode.c
   encode_accessors.c
-  decode.c)
+  decode.c
+  vector.c)
 
 target_include_directories(aec
   PUBLIC
