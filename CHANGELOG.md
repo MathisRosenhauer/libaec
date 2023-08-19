@@ -1,6 +1,15 @@
 # libaec Changelog
 All notable changes to libaec will be documented in this file.
 
+## [1.1.0]
+
+### Changed
+- Rename aec executable to graec. This avoids a name clash with the
+  library itself in cmake builds using the Ninja
+  generator. Furthermore, the executable and its manpage will not be
+  installed any more since it is mainly used for internal testing and
+  benchmarking.
+
 ## [1.0.6] - 2021-09-17
 
 ### Changed

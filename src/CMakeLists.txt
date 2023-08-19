@@ -47,11 +47,9 @@ set_target_properties(sz_shared
   OUTPUT_NAME $<IF:$<BOOL:${MSVC}>,szip,sz>
   PUBLIC_HEADER ../include/szlib.h)
 
-# Simple client for testing and benchmarking.
-# Can also be used stand-alone
-add_executable(aec_client aec.c)
-set_target_properties(aec_client PROPERTIES OUTPUT_NAME aec)
-target_link_libraries(aec_client PUBLIC aec)
+# Simple executable for testing and benchmarking.
+add_executable(graec graec.c)
+target_link_libraries(graec aec)
 
 include(GNUInstallDirs)
 if(UNIX)
@@ -70,15 +68,7 @@ if(UNIX)
     COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/benc.sh
     ${CMAKE_CURRENT_SOURCE_DIR}/../data/typical.rz
     COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/bdec.sh
-    DEPENDS aec_client utime)
+    DEPENDS graec utime)
 endif()
 
-if(UNIX OR MINGW)
-  # Install manpage
-  install(
-    FILES aec.1
-    DESTINATION ${CMAKE_INSTALL_FULL_MANDIR}/man1
-    COMPONENT doc)
-endif()
-
-install(TARGETS aec_static aec_shared sz_static sz_shared aec_client)
+install(TARGETS aec_static aec_shared sz_static sz_shared)

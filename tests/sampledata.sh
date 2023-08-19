@@ -5,7 +5,7 @@
 # expected.
 #
 set -e
-AEC="../src/aec"
+GRAEC="../src/graec"
 if [ -n "$1" ]; then
     srcdir=$1
 fi
@@ -19,17 +19,17 @@ filesize () {
 }
 
 decode () {
-    "$AEC" -d $3 "$1" test.dat
+    "$GRAEC" -d $3 "$1" test.dat
     dd if=test.dat bs=1 count=$(filesize "$2") | cmp "$2" -
 }
 
 code () {
-    "$AEC" $3 "$2" test.rz
+    "$GRAEC" $3 "$2" test.rz
     cmp "$1" test.rz
 }
 
 code_size () {
-    "$AEC" $3 "$2" test.rz
+    "$GRAEC" $3 "$2" test.rz
     if [ ! $(filesize test.rz) -eq $(filesize "$1") ]; then
         echo "$1 size mismatch"
         exit 1
