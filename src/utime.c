@@ -4,7 +4,7 @@
  * @author Thomas Jahns, Deutsches Klimarechenzentrum
  *
  * @section LICENSE
- * Copyright 2021 Mathis Rosenhauer, Moritz Hanke, Joerg Behrens, Luis Kornblueh
+ * Copyright 2023 Mathis Rosenhauer, Moritz Hanke, Joerg Behrens, Luis Kornblueh
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without

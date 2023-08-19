@@ -218,8 +218,8 @@ The actual values of coding parameters are in fact only relevant for
 efficiency and performance. Data integrity only depends on consistency
 of the parameters.
 
-The exact length of the original data is not preserved and must also be
-transmitted out of band. The decoder can produce additional output
+The exact length of the original data is not preserved and must also
+be transmitted out of band. The decoder can produce additional output
 depending on whether the original data ended on a block boundary or on
 zero blocks. The output data must therefore be truncated to the
 correct length. This can also be achieved by providing an output
@@ -227,12 +227,16 @@ buffer of just the correct length.
 
 ### Decoding data ranges
 
-The Libaec library has functionality that allows individual data areas to be decoded without having to decode the entire file. 
-This allows efficient access to the data.
+The Libaec library has functionality that allows individual data areas
+to be decoded without having to decode the entire file. This allows
+efficient access to the data.
 
-This is possible because AEC-encoded data consists of independent blocks.
-It is, therefore, possible to decode individual blocks if their offsets are known.
-The Libaec library can capture the offsets when encoding or decoding the data and make them available to the user.
+This is possible because AEC-encoded data consists of independent
+blocks. It is, therefore, possible to decode individual blocks if
+their offsets are known. If the preprocessor requires reference
+samples, then decoding can commence only at blocks containing a
+reference sample. The Libaec library can capture the offsets when
+encoding or decoding the data and make them available to the user.
 
 The following example shows how to obtain the offsets.
 
@@ -274,10 +278,11 @@ The following example shows how to obtain the offsets.
 ...
 ```
 
-The offsets can then be used to decode ranges of data.
-The procedure is similar to the previous section, but use aec_decode_range() instead of aec_decode() and pass the offsets and the range as parameters. 
-The decoded ranges are written to the buffer as a stream. 
-When decoding the ranges into the individual buffers, set strm.total_out to zero.
+The offsets can then be used to decode ranges of data. The procedure
+is similar to the previous section, but use aec_decode_range() instead
+of aec_decode() and pass the offsets and the range as parameters. The
+decoded ranges are written to the buffer as a stream. When decoding
+the ranges into the individual buffers, set strm.total_out to zero.
 
 ```c
 #include <libaec.h>
