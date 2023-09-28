@@ -142,7 +142,11 @@ struct internal_state {
     /* length of uncompressed CDS */
     uint32_t uncomp_len;
 
+    /* RSI offsets container */
     struct vector_t *offsets;
+
+    /* indicator if an RSI should be captured */
+    int ready_to_capture_rsi;
 };
 
 #endif /* ENCODE_H */
