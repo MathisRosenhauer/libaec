@@ -1,5 +1,4 @@
 #include "check_aec.h"
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -399,11 +398,19 @@ int test_offsets(struct aec_context *ctx)
     size_t *encode_offsets_ptr;
     size_t encode_offsets_size;
     PREPARE_ENCODE_WITH_OFFSETS(&strm1, ctx, flags, encode_offsets_ptr, &encode_offsets_size);
+    assert(encode_offsets_size > 0);
 
     struct aec_stream strm2;
     size_t *decode_offsets_ptr;
     size_t decode_offsets_size;
     PREPARE_DECODE_WITH_OFFSETS(&strm2, ctx, flags, decode_offsets_ptr, &decode_offsets_size);
+    assert(decode_offsets_size > 0);
+
+    if (encode_offsets_size != decode_offsets_size) {
+        fprintf(stderr, "Error: encode_offsets_size = %zu, decode_offsets_size = %zu\n", encode_offsets_size, decode_offsets_size);
+        return 102;
+    }
+
     size_t size = decode_offsets_size > 10 ? 10 : decode_offsets_size;
 
     for (size_t i = 0; i < encode_offsets_size; ++i) {
@@ -421,10 +428,10 @@ int test_offsets(struct aec_context *ctx)
 int main(void)
 {
     int status    = AEC_OK;
-    size_t ns[]   = {1, 255, 256, 255*10, 256*10, 67000};
-    size_t rsis[] = {1, 2, 255, 256, 512, 1024, 4095, 4096};
-    size_t bss[]  = {8, 16, 32, 64};
-    size_t bpss[] = {1, 7, 8, 9, 15, 16, 17, 23, 24, 25, 31, 32};
+    size_t ns[]   = {1, 255, 256, 255*10, 256*10, 67000};  // number of samples
+    size_t rsis[] = {1, 2, 255, 256, 512, 1024, 4095, 4096};  // RSI size
+    size_t bss[]  = {8, 16, 32, 64};  // block size
+    size_t bpss[] = {1, 7, 8, 9, 15, 16, 17, 23, 24, 25, 31, 32};  // bits per sample
     data_generator_t data_generators[] = {data_generator_zero, data_generator_random, data_generator_incr};
 
     for (size_t n_i = 0; n_i < sizeof(ns) / sizeof(ns[0]); ++n_i) {
