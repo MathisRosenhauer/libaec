@@ -85,11 +85,16 @@ generate it with autotools and gnulib:
   make check install
 ```
 
-# Intel compiler settings
+# Optimization
 
-The Intel compiler can improve performance by vectorizing certain
-parts of the code on x86 architectures. Assuming your CPU supports
-AVX2, the following options will increase encoding speed.
+Libaec in general and encoding performance in particular can benefit
+from vectorization and other compiler optimizations. You can try to
+enable higher than default optimizations and check the benefits with
+the bench target.
+
+## Intel compiler
+Assuming your CPU supports AVX2, the following options will increase
+encoding speed.
 
 ```shell
   ../configure CC=icc
@@ -99,4 +104,6 @@ AVX2, the following options will increase encoding speed.
 On a 3.4 GHz E3-1240 v3 we see more than 400 MiB/s for encoding
 typical data.
 
-Using other SIMD instruction sets on older CPUs may also help.
+## gcc
+The default -O2 will already enable vectorization but -O3 yields even
+better performance.

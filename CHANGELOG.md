@@ -1,7 +1,12 @@
 # libaec Changelog
 All notable changes to libaec will be documented in this file.
 
-## [1.1.0] - 2023-08-21
+## [1.1.1] - 2023-09-29
+
+### Fixed
+- Offsets when encoding by Eugen Betke
+
+## [1.1.0] - 2023-08-21 (not released)
 
 ### Changed
 - Rename aec executable to graec. This avoids a name clash with the
