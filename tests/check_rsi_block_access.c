@@ -43,7 +43,7 @@ static void data_generator_zero(struct aec_context *ctx)
 {
     size_t nbytes = ctx->bytes_per_sample;
     if (ctx->obuf_len % nbytes) {
-        fprintf(stderr, "Invalid buffer_size: %lu\n", ctx->obuf_len);
+        fprintf(stderr, "Invalid buffer_size: %zu\n", ctx->obuf_len);
         exit(1);
     }
 
@@ -65,7 +65,7 @@ static void data_generator_random(struct aec_context *ctx)
 {
     size_t nbytes = ctx->bytes_per_sample;
     if (ctx->obuf_len % nbytes) {
-        fprintf(stderr, "Invalid buffer_size: %lu\n", ctx->obuf_len);
+        fprintf(stderr, "Invalid buffer_size: %lz\n", ctx->obuf_len);
         exit(1);
     }
 
@@ -91,7 +91,7 @@ static void data_generator_incr(struct aec_context *ctx)
 {
     size_t nbytes = ctx->bytes_per_sample;
     if (ctx->obuf_len % nbytes) {
-        fprintf(stderr, "Invalid buffer_size: %lu\n", ctx->obuf_len);
+        fprintf(stderr, "Invalid buffer_size: %zu\n", ctx->obuf_len);
         exit(1);
     }
 
