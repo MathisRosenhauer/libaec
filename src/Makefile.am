@@ -5,7 +5,7 @@ AM_CPPFLAGS = -I$(top_srcdir)/include -I$(top_builddir)/include \
 lib_LTLIBRARIES = libaec.la libsz.la
 libaec_la_SOURCES = encode.c encode_accessors.c decode.c vector.c\
 encode.h encode_accessors.h decode.h vector.h
-libaec_la_LDFLAGS = -version-info 1:1:1 -no-undefined
+libaec_la_LDFLAGS = -version-info 1:2:1 -no-undefined
 
 libsz_la_SOURCES = sz_compat.c
 libsz_la_LIBADD = libaec.la

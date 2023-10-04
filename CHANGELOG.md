@@ -1,6 +1,11 @@
 # libaec Changelog
 All notable changes to libaec will be documented in this file.
 
+## [1.1.2] - 2023-10-04
+
+### Fixed
+- Compile issue with MSVC
+
 ## [1.1.1] - 2023-09-29
 
 ### Fixed
