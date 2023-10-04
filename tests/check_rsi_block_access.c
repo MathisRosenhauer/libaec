@@ -43,7 +43,7 @@ static void data_generator_zero(struct aec_context *ctx)
 {
     size_t nbytes = ctx->bytes_per_sample;
     if (ctx->obuf_len % nbytes) {
-        fprintf(stderr, "Invalid buffer_size: %lu\n", ctx->obuf_len);
+        fprintf(stderr, "Invalid buffer_size: %zu\n", ctx->obuf_len);
         exit(1);
     }
 
@@ -65,7 +65,7 @@ static void data_generator_random(struct aec_context *ctx)
 {
     size_t nbytes = ctx->bytes_per_sample;
     if (ctx->obuf_len % nbytes) {
-        fprintf(stderr, "Invalid buffer_size: %lu\n", ctx->obuf_len);
+        fprintf(stderr, "Invalid buffer_size: %zu\n", ctx->obuf_len);
         exit(1);
     }
 
@@ -91,7 +91,7 @@ static void data_generator_incr(struct aec_context *ctx)
 {
     size_t nbytes = ctx->bytes_per_sample;
     if (ctx->obuf_len % nbytes) {
-        fprintf(stderr, "Invalid buffer_size: %lu\n", ctx->obuf_len);
+        fprintf(stderr, "Invalid buffer_size: %zu\n", ctx->obuf_len);
         exit(1);
     }
 
@@ -315,8 +315,8 @@ int test_read(struct aec_context *ctx)
     size_t num_slices = ctx->obuf_len / slice_size;
     size_t remainder = ctx->obuf_len % slice_size;
 
-    size_t slice_offsets[num_slices + 1];
-    size_t slice_sizes[num_slices + 1];
+    size_t *slice_offsets = malloc((num_slices + 1) * sizeof(slice_offsets[0])); 
+    size_t *slice_sizes = malloc((num_slices + 1) * sizeof(slice_sizes[0]));
 
     for (size_t i = 0; i < num_slices; ++i) {
         slice_offsets[i] = slice_size * i;
@@ -385,6 +385,8 @@ int test_read(struct aec_context *ctx)
     aec_decode_end(&strm_read);
 
     free(offsets);
+    free(slice_offsets);
+    free(slice_sizes);
     return status;
 }
 
