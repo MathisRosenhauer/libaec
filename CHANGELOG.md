@@ -1,6 +1,12 @@
 # libaec Changelog
 All notable changes to libaec will be documented in this file.
 
+## [1.1.3] - 2024-03-21
+
+### Fixed
+- Compiler warnings
+
+
 ## [1.1.2] - 2023-10-04
 
 ### Fixed

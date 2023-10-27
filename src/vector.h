@@ -1,6 +1,6 @@
 #pragma once
 
-#include <libaec.h>
+#include "config.h"
 #include <stdlib.h>
 
 struct vector_t {

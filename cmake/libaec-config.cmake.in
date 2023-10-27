@@ -59,6 +59,12 @@ if (libaec_FOUND)
     add_library(libaec::aec STATIC IMPORTED)
   else ()
     add_library(libaec::aec SHARED IMPORTED)
+    target_compile_definitions(libaec::aec INTERFACE LIBAEC_SHARED)
+    if (MSVC)
+      set_target_properties(libaec::aec PROPERTIES
+        IMPORTED_IMPLIB "${libaec_LIBRARY}"
+      )
+    endif ()
   endif ()
   set_target_properties(libaec::aec PROPERTIES
     IMPORTED_LOCATION "${libaec_LIBRARY}"
@@ -70,6 +76,12 @@ if (libaec_FOUND)
     add_library(libaec::sz STATIC IMPORTED)
   else ()
     add_library(libaec::sz SHARED IMPORTED)
+    target_compile_definitions(libaec::sz INTERFACE LIBAEC_SHARED)
+    if (MSVC)
+      set_target_properties(libaec::sz PROPERTIES
+        IMPORTED_IMPLIB "${SZIP_LIBRARY}"
+      )
+    endif ()
   endif ()
   set_target_properties(libaec::sz PROPERTIES
     IMPORTED_LOCATION "${SZIP_LIBRARY}"

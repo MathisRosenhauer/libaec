@@ -31,6 +31,8 @@ set_target_properties(aec_shared
 add_library(sz OBJECT sz_compat.c)
 target_link_libraries(sz PUBLIC aec)
 
+set(libaec_COMPILE_DEFINITIONS "LIBAEC_BUILD;LIBAEC_SHARED")
+
 # Create both static and shared szip library.
 add_library(sz_static STATIC "$<TARGET_OBJECTS:sz>" "$<TARGET_OBJECTS:aec>")
 set_target_properties(sz_static
@@ -51,16 +53,14 @@ set_target_properties(sz_shared
 add_executable(graec graec.c)
 target_link_libraries(graec aec)
 
+# Handle visibility of symbols. Compatible with gnulib's gl_VISIBILITY
+include(CheckCCompilerFlag)
+check_c_compiler_flag(-fvisibility=hidden COMPILER_HAS_HIDDEN_VISIBILITY)
+set(libaec_COMPILE_DEFINITIONS
+  "${libaec_COMPILE_DEFINITIONS};HAVE_VISIBILITY=$<BOOL:${COMPILER_HAS_HIDDEN_VISIBILITY}>")
+
 include(GNUInstallDirs)
 if(UNIX)
-  # Handle visibility of symbols. Compatible with gnulib's gl_VISIBILITY
-  include(CheckCCompilerFlag)
-  check_c_compiler_flag(-fvisibility=hidden COMPILER_HAS_HIDDEN_VISIBILITY)
-  set_target_properties(aec sz
-    PROPERTIES
-    COMPILE_DEFINITIONS
-    "HAVE_VISIBILITY=$<BOOL:${COMPILER_HAS_HIDDEN_VISIBILITY}>;BUILDING_LIBAEC")
-
   # The shell scripts for benchmarking are supported on unix only
   add_executable(utime EXCLUDE_FROM_ALL utime.c)
   target_include_directories(utime PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/..")
@@ -70,5 +70,9 @@ if(UNIX)
     COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/bdec.sh
     DEPENDS graec utime)
 endif()
+
+set_target_properties(aec sz
+  PROPERTIES
+  COMPILE_DEFINITIONS "${libaec_COMPILE_DEFINITIONS}")
 
 install(TARGETS aec_static aec_shared sz_static sz_shared)

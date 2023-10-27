@@ -337,7 +337,7 @@ static uint32_t assess_splitting_option(struct aec_stream *strm)
     struct internal_state *state = strm->state;
 
     /* Block size of current block */
-    int this_bs = strm->block_size - state->ref;
+    uint64_t this_bs = strm->block_size - state->ref;
 
     /* CDS length minimum so far */
     uint64_t len_min = UINT64_MAX;
@@ -890,7 +890,6 @@ int aec_encode_init(struct aec_stream *strm)
     *state->cds = 0;
     state->bits = 8;
     state->mode = m_get_block;
-    struct vector_t *offsets = NULL;
     state->ready_to_capture_rsi = 0;
     return AEC_OK;
 }
