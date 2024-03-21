@@ -112,22 +112,6 @@ static void data_generator_incr(struct aec_context *ctx)
     }
 }
 
-static void ctx_init(struct aec_context *ctx)
-{
-    ctx->nvalues = 0;
-    ctx->flags = 0;
-    ctx->rsi = 0;
-    ctx->block_size = 0;
-    ctx->bits_per_sample = 0;
-    ctx->obuf = NULL;
-    ctx->ebuf = NULL;
-    ctx->dbuf = NULL;
-    ctx->obuf_len = 0;
-    ctx->ebuf_len = 0;
-    ctx->dbuf_len = 0;
-    ctx->ebuf_total = 0;
-}
-
 #define PREPARE_ENCODE(strm_e, ctx, flags) \
 { \
     (strm_e)->flags = flags; \
@@ -239,7 +223,6 @@ static int test_rsi_at(struct aec_context *ctx)
 {
     int status = AEC_OK;
     int flags = ctx->flags;
-    unsigned short *obuf = (unsigned short*) ctx->obuf;
 
     struct aec_stream strm_encode;
     PREPARE_ENCODE(&strm_encode, ctx, flags);
@@ -256,7 +239,7 @@ static int test_rsi_at(struct aec_context *ctx)
         exit(1);
     }
 
-    for (int i = 0; i < offsets_count; ++i) {
+    for (size_t i = 0; i < offsets_count; ++i) {
         struct aec_stream strm_at;
         strm_at.flags = flags;
         strm_at.rsi = ctx->rsi;
@@ -270,8 +253,8 @@ static int test_rsi_at(struct aec_context *ctx)
         if ((status = aec_rsi_at(&strm_at, offsets, offsets_count, i)) != AEC_OK) {
             return status;
         }
-        for (int j = 0; j < strm_at.total_out; j++) {
-            if (j == ctx->rsi * ctx->block_size * ctx->bytes_per_sample + j > ctx->obuf_len) {
+        for (size_t j = 0; j < strm_at.total_out; j++) {
+            if (j == (ctx->rsi * ctx->block_size * ctx->bytes_per_sample + j > ctx->obuf_len)) {
                 break;
             }
             if (rsi_buf[j] != ctx->obuf[i * ctx->block_size * ctx->rsi * ctx->bytes_per_sample + j]) {
@@ -297,11 +280,6 @@ int test_read(struct aec_context *ctx)
     size_t *offsets = NULL;
     size_t offsets_size = 0;
     PREPARE_DECODE_WITH_OFFSETS(&strm_decode, ctx, flags, offsets, &offsets_size);
-
-    size_t rsi_len = ctx->rsi * ctx->block_size * ctx->bytes_per_sample;
-    unsigned rsi_n = ctx->obuf_len / (ctx->rsi * ctx->block_size); // Number of full rsi blocks
-    unsigned rsi_r = ctx->obuf_len % (ctx->rsi * ctx->block_size); // Remainder
-
     // Edge case: Imposible to get wanted number of slices
     size_t wanted_num_slices = 3;
     if (wanted_num_slices > ctx->obuf_len) {
@@ -340,7 +318,6 @@ int test_read(struct aec_context *ctx)
 
     if ((status = aec_decode_init(&strm_read)) != AEC_OK)
         return status;
-    struct internal_state *state = strm_read.state;
 
     // Test 1: Stream data
     for (size_t i = 0; i < num_slices; ++i) {
@@ -360,7 +337,6 @@ int test_read(struct aec_context *ctx)
 
     // Test 2: Read slices
     for (size_t i = 0; i < num_slices; ++i) {
-        struct internal_state *state = strm_read.state;
         size_t buf_size = slice_sizes[i];;
         unsigned char *buf = malloc(buf_size);
         if (buf == NULL) {
@@ -412,8 +388,6 @@ int test_offsets(struct aec_context *ctx)
         fprintf(stderr, "Error: encode_offsets_size = %zu, decode_offsets_size = %zu\n", encode_offsets_size, decode_offsets_size);
         return 102;
     }
-
-    size_t size = decode_offsets_size > 10 ? 10 : decode_offsets_size;
 
     for (size_t i = 0; i < encode_offsets_size; ++i) {
         if (encode_offsets_ptr[i] != decode_offsets_ptr[i]) {

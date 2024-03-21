@@ -14,7 +14,7 @@ void shift_cdata(struct test_state *state, unsigned char *cbuf_unshifted,
     unsigned char *dst = state->cbuf + byte_offset;
 
     memset(state->cbuf, 0, state->buf_len);
-    for (int i = 0; i < strm->avail_in; i++) {
+    for (size_t i = 0; i < strm->avail_in; i++) {
         dst[i] |= cbuf_unshifted[i] >> bit_offset;
         dst[i + 1] |= cbuf_unshifted[i] << (8 - bit_offset);
     }

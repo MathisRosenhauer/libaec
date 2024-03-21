@@ -49,8 +49,14 @@
 extern "C"{
 #endif
 
-#if BUILDING_LIBAEC && HAVE_VISIBILITY
+#if defined LIBAEC_BUILD && HAVE_VISIBILITY
 #  define LIBAEC_DLL_EXPORTED __attribute__((__visibility__("default")))
+#elif (defined _WIN32 && !defined __CYGWIN__) && defined LIBAEC_SHARED
+#  if defined LIBAEC_BUILD
+#    define LIBAEC_DLL_EXPORTED __declspec(dllexport)
+#  else
+#    define LIBAEC_DLL_EXPORTED __declspec(dllimport)
+#  endif
 #else
 #  define LIBAEC_DLL_EXPORTED
 #endif

@@ -43,7 +43,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#if HAVE_BSR64
+#ifdef HAVE_BSR64
 #include <intrin.h>
 #endif
 
@@ -295,7 +295,7 @@ static inline uint32_t direct_get_fs(struct aec_stream *strm)
 #endif
 #if HAVE_DECL___BUILTIN_CLZLL || __has_builtin(__builtin_clzll)
         int i = 63 - __builtin_clzll(state->acc);
-#elif HAVE_BSR64
+#elif defined HAVE_BSR64
         unsigned long i;
         _BitScanReverse64(&i, state->acc);
 #else
