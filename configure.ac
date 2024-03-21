@@ -2,7 +2,7 @@ AC_PREREQ([2.71])
 
 m4_define([VERSION_MAJOR], [1])
 m4_define([VERSION_MINOR], [1])
-m4_define([VERSION_PATCH], [2])
+m4_define([VERSION_PATCH], [3])
 
 AC_INIT([libaec],[VERSION_MAJOR.VERSION_MINOR.VERSION_PATCH],[rosenhauer@dkrz.de])
 

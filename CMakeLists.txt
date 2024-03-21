@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.13...3.19)
-project(libaec LANGUAGES C VERSION 1.1.2)
+project(libaec LANGUAGES C VERSION 1.1.3)
 
 set(CMAKE_C_STANDARD 99)
 set(CMAKE_C_VISIBILITY_PRESET hidden)
