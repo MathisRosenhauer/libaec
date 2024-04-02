@@ -60,7 +60,7 @@ if (libaec_FOUND)
   else ()
     add_library(libaec::aec SHARED IMPORTED)
     target_compile_definitions(libaec::aec INTERFACE LIBAEC_SHARED)
-    if (MSVC)
+    if (WIN32)
       set_target_properties(libaec::aec PROPERTIES
         IMPORTED_IMPLIB "${libaec_LIBRARY}"
       )
@@ -77,7 +77,7 @@ if (libaec_FOUND)
   else ()
     add_library(libaec::sz SHARED IMPORTED)
     target_compile_definitions(libaec::sz INTERFACE LIBAEC_SHARED)
-    if (MSVC)
+    if (WIN32)
       set_target_properties(libaec::sz PROPERTIES
         IMPORTED_IMPLIB "${SZIP_LIBRARY}"
       )
