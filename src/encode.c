@@ -44,6 +44,12 @@
 #include <stdlib.h>
 #include <string.h>
 
+// We want the below macro to be defined for Visual C++ compilers where when compiled as C 
+// and one of the /std C11 or C17 options is not possible to be specified (For eg. in Version 15.9.57 in Visual Studio 2017)
+#if defined(_MSC_VER) && !defined(__STDC_VERSION__)
+#  define restrict __restrict
+#endif
+
 static int m_get_block(struct aec_stream *strm);
 
 static inline void emit(struct internal_state *state,
