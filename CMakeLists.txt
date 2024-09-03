@@ -16,12 +16,18 @@ check_c_source_compiles(
   HAVE_DECL___BUILTIN_CLZLL)
 
 if(NOT HAVE_DECL___BUILTIN_CLZLL)
-  # With MSVC we can use _BitScanReverse64
-  check_c_source_compiles(
-    "int main(void){unsigned long foo; unsigned __int64 bar=1LL;
+  if(CMAKE_SIZEOF_VOID_P EQUAL 8)  # Check if we're on a 64-bit system
+    # With MSVC we can use _BitScanReverse64
+    check_c_source_compiles(
+      "int main(void){unsigned long foo; unsigned __int64 bar=1LL;
 return _BitScanReverse64(&foo, bar);}"
-    HAVE_BSR64)
+      HAVE_BSR64)
+  else()
+    # Provide an alternative or set HAVE_BSR64 to false if not needed
+    set(HAVE_BSR64 FALSE)
+  endif()
 endif()
+
 
 include(CheckSymbolExists)
 check_symbol_exists(snprintf "stdio.h" HAVE_SNPRINTF)
