@@ -43,16 +43,20 @@
 #include <stdlib.h>
 #include <string.h>
 
-
-#ifdef _WIN32
-  #ifdef _WIN64
-    #ifdef HAVE_BSR64
-      #include <intrin.h>
-    #endif
-  #endif
+// Define HAVE_BSR64 only on Win64
+#if defined(_WIN32) && defined(_WIN64)
+  // Define HAVE_BSR64 only on 64-bit Windows
+  #define HAVE_BSR64
+#else
+  // Undefine HAVE_BSR64 on other platforms including UNIX
+  #undef HAVE_BSR64
 #endif
 
 
+#ifdef HAVE_BSR64
+  #include <intrin.h>
+#endif
+	
 #define ROS 5
 #define RSI_USED_SIZE(state) ((size_t)(state->rsip - state->rsi_buffer))
 #define BUFFERSPACE(strm) (strm->avail_in >= strm->state->in_blklen      \
