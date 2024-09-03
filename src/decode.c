@@ -43,9 +43,15 @@
 #include <stdlib.h>
 #include <string.h>
 
-#ifdef HAVE_BSR64
-#include <intrin.h>
+
+#ifdef _WIN32
+  #ifdef _WIN64
+    #ifdef HAVE_BSR64
+      #include <intrin.h>
+    #endif
+  #endif
 #endif
+
 
 #define ROS 5
 #define RSI_USED_SIZE(state) ((size_t)(state->rsip - state->rsi_buffer))
