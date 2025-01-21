@@ -116,9 +116,9 @@ uint32_t aec_get_msb_32(struct aec_stream *strm)
 
 void aec_get_rsi_8(struct aec_stream *strm)
 {
-    uint32_t *restrict out = strm->state->data_raw;
-    unsigned const char *restrict in = strm->next_in;
-    int rsi = strm->rsi * strm->block_size;
+    uint32_t *out = strm->state->data_raw;
+    unsigned const char *in = strm->next_in;
+    int rsi = strm->rsi *strm->block_size;
 
     for (int i = 0; i < rsi; i++)
         out[i] = (uint32_t)in[i];
@@ -129,9 +129,9 @@ void aec_get_rsi_8(struct aec_stream *strm)
 
 void aec_get_rsi_lsb_16(struct aec_stream *strm)
 {
-    uint32_t *restrict out = strm->state->data_raw;
-    const unsigned char *restrict in = strm->next_in;
-    int rsi = strm->rsi * strm->block_size;
+    uint32_t *out = strm->state->data_raw;
+    const unsigned char *in = strm->next_in;
+    int rsi = strm->rsi *strm->block_size;
 
     for (int i = 0; i < rsi; i++)
         out[i] = (uint32_t)in[2 * i] | ((uint32_t)in[2 * i + 1] << 8);
@@ -142,9 +142,9 @@ void aec_get_rsi_lsb_16(struct aec_stream *strm)
 
 void aec_get_rsi_msb_16(struct aec_stream *strm)
 {
-    uint32_t *restrict out = strm->state->data_raw;
-    const unsigned char *restrict in = strm->next_in;
-    int rsi = strm->rsi * strm->block_size;
+    uint32_t *out = strm->state->data_raw;
+    const unsigned char *in = strm->next_in;
+    int rsi = strm->rsi *strm->block_size;
 
     for (int i = 0; i < rsi; i++)
         out[i] = ((uint32_t)in[2 * i] << 8) | (uint32_t)in[2 * i + 1];
@@ -155,9 +155,9 @@ void aec_get_rsi_msb_16(struct aec_stream *strm)
 
 void aec_get_rsi_lsb_24(struct aec_stream *strm)
 {
-    uint32_t *restrict out = strm->state->data_raw;
-    const unsigned char *restrict in = strm->next_in;
-    int rsi = strm->rsi * strm->block_size;
+    uint32_t *out = strm->state->data_raw;
+    const unsigned char *in = strm->next_in;
+    int rsi = strm->rsi *strm->block_size;
 
     for (int i = 0; i < rsi; i++)
         out[i] = (uint32_t)in[3 * i]
@@ -170,9 +170,9 @@ void aec_get_rsi_lsb_24(struct aec_stream *strm)
 
 void aec_get_rsi_msb_24(struct aec_stream *strm)
 {
-    uint32_t *restrict out = strm->state->data_raw;
-    const unsigned char *restrict in = strm->next_in;
-    int rsi = strm->rsi * strm->block_size;
+    uint32_t *out = strm->state->data_raw;
+    const unsigned char *in = strm->next_in;
+    int rsi = strm->rsi *strm->block_size;
 
     for (int i = 0; i < rsi; i++)
         out[i] = ((uint32_t)in[3 * i] << 16)
@@ -186,7 +186,7 @@ void aec_get_rsi_msb_24(struct aec_stream *strm)
 #define AEC_GET_RSI_NATIVE_32(BO)                       \
     void aec_get_rsi_##BO##_32(struct aec_stream *strm) \
     {                                               \
-        int rsi = strm->rsi * strm->block_size;     \
+        int rsi = strm->rsi *strm->block_size;     \
         memcpy(strm->state->data_raw,               \
                strm->next_in, 4 * rsi);             \
         strm->next_in += 4 * rsi;                   \
@@ -196,9 +196,9 @@ void aec_get_rsi_msb_24(struct aec_stream *strm)
 #ifdef WORDS_BIGENDIAN
 void aec_get_rsi_lsb_32(struct aec_stream *strm)
 {
-    uint32_t *restrict out = strm->state->data_raw;
-    const unsigned char *restrict in = strm->next_in;
-    int rsi = strm->rsi * strm->block_size;
+    uint32_t *out = strm->state->data_raw;
+    const unsigned char *in = strm->next_in;
+    int rsi = strm->rsi *strm->block_size;
 
     for (int i = 0; i < rsi; i++)
         out[i] = (uint32_t)in[4 * i]
@@ -215,9 +215,9 @@ AEC_GET_RSI_NATIVE_32(msb);
 #else /* !WORDS_BIGENDIAN */
 void aec_get_rsi_msb_32(struct aec_stream *strm)
 {
-    uint32_t *restrict out = strm->state->data_raw;
-    const unsigned char *restrict in = strm->next_in;
-    int rsi = strm->rsi * strm->block_size;
+    uint32_t *out = strm->state->data_raw;
+    const unsigned char *in = strm->next_in;
+    int rsi = strm->rsi *strm->block_size;
 
     strm->next_in += 4 * rsi;
     strm->avail_in -= 4 * rsi;
