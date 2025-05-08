@@ -1,6 +1,9 @@
 cmake_minimum_required(VERSION 3.13...3.19)
 project(libaec LANGUAGES C VERSION 1.1.3)
 
+option(BUILD_SHARED_LIBS "OFF: do not build shared libraries.  ON (default): build shared libraries" ON)
+option(BUILD_STATIC_LIBS "OFF: do not build static libraries.  ON (default): build static libraries" ON)
+
 set(CMAKE_C_STANDARD 99)
 set(CMAKE_C_VISIBILITY_PRESET hidden)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
@@ -71,9 +74,9 @@ set(libaec_CONFIG_VERSION_IN  ${CMAKE_CURRENT_SOURCE_DIR}/cmake/libaec-config-ve
 set(libaec_CONFIG_VERSION_OUT ${CMAKE_CURRENT_BINARY_DIR}/cmake/libaec-config-version.cmake)
 configure_file(${libaec_CONFIG_VERSION_IN} ${libaec_CONFIG_VERSION_OUT} @ONLY)
 install(FILES ${libaec_CONFIG_OUT}
-        DESTINATION cmake)
+        DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/libaec)
 install(FILES ${libaec_CONFIG_VERSION_OUT}
-        DESTINATION cmake)
+        DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/libaec)
 
 # Cpack configuration mainly for Windows installer
 set(CPACK_PACKAGE_NAME "libaec")
