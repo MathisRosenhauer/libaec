@@ -27,6 +27,7 @@ endif()
 if(BUILD_SHARED_LIBS)
   add_library(aec_shared SHARED "$<TARGET_OBJECTS:aec>")
   target_link_libraries(aec_shared PUBLIC aec)
+  target_compile_definitions(aec_shared PRIVATE LIBAEC_SHARED)
   set_target_properties(aec_shared
     PROPERTIES
     VERSION 0.1.3
@@ -42,7 +43,7 @@ set_target_properties(sz
   PROPERTIES
   PUBLIC_HEADER ../include/szlib.h)
 
-set(libaec_COMPILE_DEFINITIONS "LIBAEC_BUILD;LIBAEC_SHARED")
+set(libaec_COMPILE_DEFINITIONS "LIBAEC_BUILD")
 
 # Optionally, create both static and shared szip library.
 if(BUILD_STATIC_LIBS)
@@ -56,6 +57,7 @@ endif()
 if(BUILD_SHARED_LIBS)
   add_library(sz_shared SHARED "$<TARGET_OBJECTS:sz>" "$<TARGET_OBJECTS:aec>")
   target_link_libraries(sz_shared PUBLIC sz)
+  target_compile_definitions(sz_shared PRIVATE LIBAEC_SHARED)
   set_target_properties(sz_shared
     PROPERTIES
     VERSION 2.0.1
@@ -85,9 +87,8 @@ if(UNIX)
     DEPENDS graec utime)
 endif()
 
-set_target_properties(aec sz
-  PROPERTIES
-  COMPILE_DEFINITIONS "${libaec_COMPILE_DEFINITIONS}")
+target_compile_definitions(aec PRIVATE "${libaec_COMPILE_DEFINITIONS}")
+target_compile_definitions(sz PRIVATE "${libaec_COMPILE_DEFINITIONS}")
 
 if(BUILD_STATIC_LIBS)
   install(TARGETS aec_static sz_static)
