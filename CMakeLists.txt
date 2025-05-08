@@ -74,9 +74,9 @@ set(libaec_CONFIG_VERSION_IN  ${CMAKE_CURRENT_SOURCE_DIR}/cmake/libaec-config-ve
 set(libaec_CONFIG_VERSION_OUT ${CMAKE_CURRENT_BINARY_DIR}/cmake/libaec-config-version.cmake)
 configure_file(${libaec_CONFIG_VERSION_IN} ${libaec_CONFIG_VERSION_OUT} @ONLY)
 install(FILES ${libaec_CONFIG_OUT}
-        DESTINATION cmake)
+        DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/libaec)
 install(FILES ${libaec_CONFIG_VERSION_OUT}
-        DESTINATION cmake)
+        DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/libaec)
 
 # Cpack configuration mainly for Windows installer
 set(CPACK_PACKAGE_NAME "libaec")
