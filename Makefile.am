@@ -1,7 +1,8 @@
 ACLOCAL_AMFLAGS = -I m4
 SUBDIRS = src tests
-EXTRA_DIST = doc/patent.txt CMakeLists.txt cmake/config.h.in \
-cmake/libaec-config.cmake.in cmake/libaec-config-version.cmake.in \
+EXTRA_DIST = doc/patent.txt CMakeLists.txt include/config.h.in \
+packaging/libaec-config.cmake packaging/CMakeLists.txt \
+fuzzing/CMakeLists.txt fuzzing/fuzz_target.cc \
 INSTALL.md README.md README.SZIP CHANGELOG.md LICENSE.txt data
 
 sampledata = 121B2TestData
