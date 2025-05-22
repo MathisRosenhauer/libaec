@@ -27,7 +27,6 @@ endif()
 if(BUILD_SHARED_LIBS)
   add_library(aec_shared SHARED "$<TARGET_OBJECTS:aec>")
   target_link_libraries(aec_shared PUBLIC aec)
-  target_compile_definitions(aec_shared PRIVATE LIBAEC_SHARED)
   set_target_properties(aec_shared
     PROPERTIES
     VERSION 0.1.3
@@ -43,8 +42,6 @@ set_target_properties(sz
   PROPERTIES
   PUBLIC_HEADER ../include/szlib.h)
 
-set(libaec_COMPILE_DEFINITIONS "LIBAEC_BUILD")
-
 # Optionally, create both static and shared szip library.
 if(BUILD_STATIC_LIBS)
   add_library(sz_static STATIC "$<TARGET_OBJECTS:sz>" "$<TARGET_OBJECTS:aec>")
@@ -57,7 +54,6 @@ endif()
 if(BUILD_SHARED_LIBS)
   add_library(sz_shared SHARED "$<TARGET_OBJECTS:sz>" "$<TARGET_OBJECTS:aec>")
   target_link_libraries(sz_shared PUBLIC sz)
-  target_compile_definitions(sz_shared PRIVATE LIBAEC_SHARED)
   set_target_properties(sz_shared
     PROPERTIES
     VERSION 2.0.1
@@ -65,15 +61,23 @@ if(BUILD_SHARED_LIBS)
     OUTPUT_NAME $<IF:$<BOOL:${MSVC}>,szip,sz>)
 endif()
 
-# Simple executable for testing and benchmarking.
-add_executable(graec graec.c)
-target_link_libraries(graec aec)
+# Compile definitions
+set(libaec_COMPILE_DEFINITIONS "LIBAEC_BUILD;LIBAEC_SHARED")
 
 # Handle visibility of symbols. Compatible with gnulib's gl_VISIBILITY
 include(CheckCCompilerFlag)
 check_c_compiler_flag(-fvisibility=hidden COMPILER_HAS_HIDDEN_VISIBILITY)
-set(libaec_COMPILE_DEFINITIONS
-  "${libaec_COMPILE_DEFINITIONS};HAVE_VISIBILITY=$<BOOL:${COMPILER_HAS_HIDDEN_VISIBILITY}>")
+if(COMPILER_HAS_HIDDEN_VISIBILITY)
+  set(libaec_COMPILE_DEFINITIONS
+    "${libaec_COMPILE_DEFINITIONS};HAVE_VISIBILITY")
+endif()
+
+target_compile_definitions(aec PRIVATE "${libaec_COMPILE_DEFINITIONS}")
+target_compile_definitions(sz PRIVATE "${libaec_COMPILE_DEFINITIONS}")
+
+# Simple executable for testing and benchmarking.
+add_executable(graec graec.c)
+target_link_libraries(graec aec)
 
 include(GNUInstallDirs)
 if(UNIX)
@@ -86,9 +90,6 @@ if(UNIX)
     COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/bdec.sh
     DEPENDS graec utime)
 endif()
-
-target_compile_definitions(aec PRIVATE "${libaec_COMPILE_DEFINITIONS}")
-target_compile_definitions(sz PRIVATE "${libaec_COMPILE_DEFINITIONS}")
 
 set(TARGETS_EXPORT)
 if (BUILD_STATIC_LIBS)
