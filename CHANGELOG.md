@@ -1,6 +1,15 @@
 # libaec Changelog
 All notable changes to libaec will be documented in this file.
 
+## [1.1.4] - 2025-05-23
+
+### Fixed
+- Optionally, build only shared or only static libraries by Markus
+  Mützel and Vincent LE GARREC
+- Export separate CMake targets for shared and for static libraries by
+  Markus Mützel
+- CMake for Windows by Miloš Komarčević
+
 ## [1.1.3] - 2024-03-21
 
 ### Fixed

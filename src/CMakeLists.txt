@@ -30,7 +30,7 @@ if(BUILD_SHARED_LIBS)
   target_compile_definitions(aec_shared PRIVATE LIBAEC_SHARED)
   set_target_properties(aec_shared
     PROPERTIES
-    VERSION 0.1.3
+    VERSION 0.1.4
     SOVERSION 0
     OUTPUT_NAME aec)
 endif()
