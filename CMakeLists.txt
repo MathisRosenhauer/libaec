@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.13...3.19)
+cmake_minimum_required(VERSION 3.26...3.31)
 project(libaec LANGUAGES C VERSION 1.1.3)
 
 option(BUILD_SHARED_LIBS "OFF: do not build shared libraries.  ON (default): build shared libraries" ON)
