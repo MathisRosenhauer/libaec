@@ -1,12 +1,14 @@
 # libaec-config.cmake
-# ----------------
+# -------------------
 #
 # Finds the AEC library, specify the starting search path in libaec_ROOT.
 #
 # Static vs. shared
 # -----------------
-# To make use of the static library instead of the shared one, one needs
-# to set the variable libaec_USE_STATIC_LIBS to ON before calling find_package.
+# To make use of the static library instead of the shared one, one
+# needs to set the variable libaec_USE_STATIC_LIBS to ON before
+# calling find_package. BUILD_SHARED_LIBS is also respected. So if
+# BUILD_SHARED_LIBS is OFF, the static library is selected.
 # Example:
 #   set(libaec_USE_STATIC_LIBS ON)
 #   find_package(libaec CONFIG)
@@ -28,10 +30,11 @@
 #   libaec::sz-static   - The static SZIP compatible version of the AEC library
 #                         (if it was built).
 #   libaec::aec         - The (shared or static) AEC library target (according
-#                         to the value of libaec_USE_STATIC_LIBS).
+#                         to the value of libaec_USE_STATIC_LIBS or
+#                         BUILD_SHARED_LIBS).
 #   libaec::sz          - The (shared or static) SZIP compatible version of the
 #                         AEC library (according to the value of
-#                         libaec_USE_STATIC_LIBS).
+#                         libaec_USE_STATIC_LIBS or BUILD_SHARED_LIBS).
 
 find_path(libaec_INCLUDE_DIR NAMES libaec.h DOC "AEC include directory")
 find_path(SZIP_INCLUDE_DIR NAMES szlib.h DOC "SZIP include directory")
@@ -44,7 +47,7 @@ else ()
   find_library(libaec-static_LIBRARY NAMES libaec.a DOC "AEC library")
   find_library(SZIP-static_LIBRARY NAMES libsz.a DOC "SZIP compatible version of the AEC library")
 endif ()
-if (libaec_USE_STATIC_LIBS)
+if (libaec_USE_STATIC_LIBS OR NOT BUILD_SHARED_LIBS)
   set(libaec_LIBRARY ${libaec-static_LIBRARY})
   set(SZIP_LIBRARY ${SZIP-static_LIBRARY})
 else ()
@@ -75,12 +78,12 @@ if (libaec_FOUND)
       INTERFACE_INCLUDE_DIRECTORIES "${libaec_INCLUDE_DIR}"
     )
   endif ()
-  if (libaec-static_LIBRARY)
-    add_library(libaec::aec-shared STATIC IMPORTED)
+  if (libaec-shared_LIBRARY)
+    add_library(libaec::aec-shared SHARED IMPORTED)
     target_compile_definitions(libaec::aec-shared INTERFACE LIBAEC_SHARED)
     if (WIN32)
       set_target_properties(libaec::aec-shared PROPERTIES
-        IMPORTED_IMPLIB "${libaec_LIBRARY}"
+        IMPORTED_IMPLIB "${libaec-shared_LIBRARY}"
       )
     endif ()
     set_target_properties(libaec::aec-shared PROPERTIES
@@ -88,7 +91,7 @@ if (libaec_FOUND)
       INTERFACE_INCLUDE_DIRECTORIES "${libaec_INCLUDE_DIR}"
     )
   endif ()
-  if (libaec_USE_STATIC_LIBS)
+  if (libaec_USE_STATIC_LIBS OR NOT BUILD_SHARED_LIBS)
     add_library(libaec::aec ALIAS libaec::aec-static)
   else ()
     add_library(libaec::aec ALIAS libaec::aec-shared)
@@ -102,7 +105,7 @@ if (libaec_FOUND)
       INTERFACE_INCLUDE_DIRECTORIES "${SZIP_INCLUDE_DIR}"
     )
   endif ()
-  if (libaec-static_LIBRARY)
+  if (SZIP-shared_LIBRARY)
     add_library(libaec::sz-shared SHARED IMPORTED)
     target_compile_definitions(libaec::sz-shared INTERFACE LIBAEC_SHARED)
     if (WIN32)
@@ -115,7 +118,7 @@ if (libaec_FOUND)
       INTERFACE_INCLUDE_DIRECTORIES "${SZIP_INCLUDE_DIR}"
     )
   endif ()
-  if (libaec_USE_STATIC_LIBS)
+  if (libaec_USE_STATIC_LIBS OR NOT BUILD_SHARED_LIBS)
     add_library(libaec::sz ALIAS libaec::sz-static)
   else ()
     add_library(libaec::sz ALIAS libaec::sz-shared)
