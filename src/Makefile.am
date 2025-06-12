@@ -4,12 +4,12 @@ AM_CPPFLAGS = -I$(top_srcdir)/include -I$(top_builddir)/include
 lib_LTLIBRARIES = libaec.la libsz.la
 libaec_la_SOURCES = encode.c encode_accessors.c decode.c vector.c\
 encode.h encode_accessors.h decode.h vector.h
-libaec_la_CPPFLAGS = $(AM_CPPFLAGS) -DLIBAEC_BUILD
+libaec_la_CPPFLAGS = $(AM_CPPFLAGS) -DLIBAEC_BUILD $(LIBAEC_SHARED)
 libaec_la_LDFLAGS = -version-info 1:3:1 -no-undefined
 
 libsz_la_SOURCES = sz_compat.c
 libsz_la_LIBADD = libaec.la
-libsz_la_CPPFLAGS = $(AM_CPPFLAGS) -DLIBAEC_BUILD
+libsz_la_CPPFLAGS = $(AM_CPPFLAGS) -DLIBAEC_BUILD $(LIBAEC_SHARED)
 libsz_la_LDFLAGS = -version-info 2:1:0 -no-undefined
 
 include_HEADERS = $(top_builddir)/include/libaec.h $(top_srcdir)/include/szlib.h
