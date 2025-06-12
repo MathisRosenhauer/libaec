@@ -41,7 +41,7 @@ if(BUILD_SHARED_LIBS)
   target_link_libraries(aec-shared PUBLIC aec-shared-objects)
   set_target_properties(aec-shared
     PROPERTIES
-    VERSION 0.1.3
+    VERSION 0.1.4
     SOVERSION 0
     OUTPUT_NAME aec)
 

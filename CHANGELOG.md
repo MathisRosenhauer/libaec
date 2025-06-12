@@ -1,6 +1,19 @@
 # libaec Changelog
 All notable changes to libaec will be documented in this file.
 
+## [1.1.4] - 2025-06-12
+
+### Changed
+- Build either or both shared and static libraries. The behavior is
+  selected by the BUILD_SHARED_LIBS and BUILD_STATIC_LIBS options
+  which are both ON by default. For example, add
+  -DBUILD_STATIC_LIBS=OFF to cmake to build only the shared libraries
+  (Markus Mützel).
+
+### Fixed
+- Various improvements for CMake by Markus Mützel, Vincent LE GARREC
+  and Miloš Komarčević.
+
 ## [1.1.3] - 2024-03-21
 
 ### Fixed
