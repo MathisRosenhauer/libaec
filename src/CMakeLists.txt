@@ -55,9 +55,8 @@ if(BUILD_SHARED_LIBS)
     PUBLIC "LIBAEC_SHARED"
     PRIVATE "LIBAEC_BUILD")
   add_library(sz-shared SHARED
-    "$<TARGET_OBJECTS:sz-shared-objects>"
-    "$<TARGET_OBJECTS:aec-shared-objects>")
-  target_link_libraries(sz-shared PUBLIC sz-shared-objects)
+    "$<TARGET_OBJECTS:sz-shared-objects>")
+  target_link_libraries(sz-shared PUBLIC aec-shared)
   set_target_properties(sz-shared
     PROPERTIES
     VERSION 2.0.1
@@ -87,9 +86,8 @@ if(BUILD_STATIC_LIBS)
   add_library(sz-static-objects OBJECT sz_compat.c)
   aec_common_include(sz-static-objects "${szlib_header}")
   add_library(sz-static STATIC
-    "$<TARGET_OBJECTS:sz-static-objects>"
-    "$<TARGET_OBJECTS:aec-static-objects>")
-  target_link_libraries(sz-static PUBLIC sz-static-objects)
+    "$<TARGET_OBJECTS:sz-static-objects>")
+  target_link_libraries(sz-static PUBLIC aec-static)
   set_target_properties(sz-static PROPERTIES OUTPUT_NAME sz)
   # Add include directory directly to sz-static so config can get it.
   target_include_directories(sz-static
