@@ -35,10 +35,10 @@
 #                         AEC library (according to the value of
 #                         libaec_USE_STATIC_LIBS).
 
-include(${CMAKE_CURRENT_LIST_DIR}/libaec-targets.cmake)
-
 # Alias static or shared targets depending on libaec_USE_STATIC_LIBS
 if(libaec_USE_STATIC_LIBS)
+  include(${CMAKE_CURRENT_LIST_DIR}/libaec_static-targets.cmake)
+
   if(TARGET libaec::aec-static AND TARGET libaec::sz-static)
     add_library(libaec::aec ALIAS libaec::aec-static)
     add_library(libaec::sz ALIAS libaec::sz-static)
@@ -48,6 +48,8 @@ if(libaec_USE_STATIC_LIBS)
     set(${CMAKE_FIND_PACKAGE_NAME}_FOUND FALSE)
   endif()
 else()
+  include(${CMAKE_CURRENT_LIST_DIR}/libaec_shared-targets.cmake)
+
   if(TARGET libaec::aec-shared AND TARGET libaec::sz-shared)
     add_library(libaec::aec ALIAS libaec::aec-shared)
     add_library(libaec::sz ALIAS libaec::sz-shared)
