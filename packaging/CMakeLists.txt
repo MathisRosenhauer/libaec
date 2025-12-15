@@ -18,21 +18,28 @@ install(FILES
 set(TARGETS_EXPORT)
 if(BUILD_SHARED_LIBS)
   set(TARGETS_EXPORT aec-shared-objects sz-shared-objects aec-shared sz-shared)
+
+  install(TARGETS ${TARGETS_EXPORT}
+    EXPORT libaec_shared_targets
+    PUBLIC_HEADER DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}")
+
+  install(EXPORT libaec_shared_targets
+    DESTINATION "${libaec_INSTALL_CMAKEDIR}"
+    NAMESPACE libaec::
+    FILE libaec_shared-targets.cmake)
 endif()
 if(BUILD_STATIC_LIBS)
-  set(TARGETS_EXPORT
-    ${TARGETS_EXPORT}
-    aec-static-objects sz-static-objects aec-static sz-static)
+  set(TARGETS_EXPORT aec-static-objects sz-static-objects aec-static sz-static)
+
+  install(TARGETS ${TARGETS_EXPORT}
+    EXPORT libaec_static_targets
+    PUBLIC_HEADER DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}")
+
+  install(EXPORT libaec_shared_targets
+    DESTINATION "${libaec_INSTALL_CMAKEDIR}"
+    NAMESPACE libaec::
+    FILE libaec_static-targets.cmake)
 endif()
-
-install(TARGETS ${TARGETS_EXPORT}
-  EXPORT libaec_targets
-  PUBLIC_HEADER DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}")
-
-install(EXPORT libaec_targets
-  DESTINATION "${libaec_INSTALL_CMAKEDIR}"
-  NAMESPACE libaec::
-  FILE libaec-targets.cmake)
 
 # Cpack configuration mainly for Windows installer
 set(CPACK_PACKAGE_NAME "libaec")
