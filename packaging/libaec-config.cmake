@@ -38,7 +38,7 @@
 # Alias static or shared targets depending on libaec_USE_STATIC_LIBS
 if(libaec_USE_STATIC_LIBS)
   include(${CMAKE_CURRENT_LIST_DIR}/libaec_static-targets.cmake)
-  if(TARGET libaec::aec-static AND TARGET libaec::sz-static AND NOT TARGET lib
+  if(TARGET libaec::aec-static AND TARGET libaec::sz-static AND NOT TARGET libaec::aec AND NOT TARGET libaec::sz)
     add_library(libaec::aec ALIAS libaec::aec-static)
     add_library(libaec::sz ALIAS libaec::sz-static)
   else()
