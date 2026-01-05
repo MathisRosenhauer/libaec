@@ -44,6 +44,9 @@ if(BUILD_SHARED_LIBS)
     VERSION 0.1.4
     SOVERSION 0
     OUTPUT_NAME aec)
+  if(MSVC OR ("${CMAKE_C_SIMULATE_ID}" STREQUAL "MSVC"))
+    set_target_properties(aec-shared PROPERTIES IMPORT_SUFFIX "_imp.lib")
+  endif()
 
   # Shared libsz
   add_library(sz-shared-objects OBJECT sz_compat.c)
@@ -52,16 +55,15 @@ if(BUILD_SHARED_LIBS)
     PUBLIC "LIBAEC_SHARED"
     PRIVATE "LIBAEC_BUILD")
   add_library(sz-shared SHARED
-    "$<TARGET_OBJECTS:sz-shared-objects>"
-    "$<TARGET_OBJECTS:aec-shared-objects>")
-  target_link_libraries(sz-shared PUBLIC sz-shared-objects)
+    "$<TARGET_OBJECTS:sz-shared-objects>")
+  target_link_libraries(sz-shared PUBLIC aec-shared)
   set_target_properties(sz-shared
     PROPERTIES
     VERSION 2.0.1
     SOVERSION 2
     OUTPUT_NAME sz)
   if(MSVC OR ("${CMAKE_C_SIMULATE_ID}" STREQUAL "MSVC"))
-    set_target_properties(sz-shared PROPERTIES OUTPUT_NAME szip)
+    set_target_properties(sz-shared PROPERTIES IMPORT_SUFFIX "_imp.lib")
   endif()
   # Add include directory directly to sz-shared so config can get it.
   target_include_directories(sz-shared
@@ -79,21 +81,14 @@ if(BUILD_STATIC_LIBS)
   add_library(aec-static STATIC "$<TARGET_OBJECTS:aec-static-objects>")
   target_link_libraries(aec-static PUBLIC aec-static-objects)
   set_target_properties(aec-static PROPERTIES OUTPUT_NAME aec)
-  if(MSVC OR ("${CMAKE_C_SIMULATE_ID}" STREQUAL "MSVC"))
-    set_target_properties(aec-static PROPERTIES OUTPUT_NAME aec-static)
-  endif()
 
   # Static libsz
   add_library(sz-static-objects OBJECT sz_compat.c)
   aec_common_include(sz-static-objects "${szlib_header}")
   add_library(sz-static STATIC
-    "$<TARGET_OBJECTS:sz-static-objects>"
-    "$<TARGET_OBJECTS:aec-static-objects>")
-  target_link_libraries(sz-static PUBLIC sz-static-objects)
+    "$<TARGET_OBJECTS:sz-static-objects>")
+  target_link_libraries(sz-static PUBLIC aec-static)
   set_target_properties(sz-static PROPERTIES OUTPUT_NAME sz)
-  if(MSVC OR ("${CMAKE_C_SIMULATE_ID}" STREQUAL "MSVC"))
-    set_target_properties(sz-static PROPERTIES OUTPUT_NAME szip-static)
-  endif()
   # Add include directory directly to sz-static so config can get it.
   target_include_directories(sz-static
     PUBLIC "$<INSTALL_INTERFACE:include>")
