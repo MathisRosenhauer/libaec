@@ -39,10 +39,24 @@ if(BUILD_SHARED_LIBS)
     PRIVATE "LIBAEC_BUILD")
   add_library(aec-shared SHARED "$<TARGET_OBJECTS:aec-shared-objects>")
   target_link_libraries(aec-shared PUBLIC aec-shared-objects)
+
+  # Shared libaec versioning
+  set(libaec_VERSION_MAJOR 0)
+  set(libaec_VERSION_MINOR 1)
+  set(libaec_VERSION_PATCH 4)
+
+  # libtool compatible versioning for Mach-O
+  math(EXPR libaec_MACHO_COMPATIBILITY_VERSION
+    "${libaec_VERSION_MAJOR} + ${libaec_VERSION_MINOR} + 1")
+  set(libaec_MACHO_CURRENT_VERSION
+    "${libaec_MACHO_COMPATIBILITY_VERSION}.${libaec_VERSION_PATCH}")
+
   set_target_properties(aec-shared
     PROPERTIES
-    VERSION 0.1.4
-    SOVERSION 0
+    VERSION "${libaec_VERSION_MAJOR}.${libaec_VERSION_MINOR}.${libaec_VERSION_PATCH}"
+    SOVERSION "${libaec_VERSION_MAJOR}"
+    MACHO_COMPATIBILITY_VERSION "${libaec_MACHO_COMPATIBILITY_VERSION}"
+    MACHO_CURRENT_VERSION "${libaec_MACHO_CURRENT_VERSION}"
     OUTPUT_NAME aec)
 
   # Shared libsz
@@ -55,10 +69,23 @@ if(BUILD_SHARED_LIBS)
     "$<TARGET_OBJECTS:sz-shared-objects>"
     "$<TARGET_OBJECTS:aec-shared-objects>")
   target_link_libraries(sz-shared PUBLIC sz-shared-objects)
+
+  # Shared libsz versioning
+  set(sz_VERSION_MAJOR 2)
+  set(sz_VERSION_MINOR 0)
+  set(sz_VERSION_PATCH 1)
+
+  math(EXPR sz_MACHO_COMPATIBILITY_VERSION
+    "${sz_VERSION_MAJOR} + ${sz_VERSION_MINOR} + 1")
+  set(sz_MACHO_CURRENT_VERSION
+    "${sz_MACHO_COMPATIBILITY_VERSION}.${sz_VERSION_PATCH}")
+
   set_target_properties(sz-shared
     PROPERTIES
-    VERSION 2.0.1
-    SOVERSION 2
+    VERSION "${sz_VERSION_MAJOR}.${sz_VERSION_MINOR}.${sz_VERSION_PATCH}"
+    SOVERSION "${sz_VERSION_MAJOR}"
+    MACHO_COMPATIBILITY_VERSION "${sz_MACHO_COMPATIBILITY_VERSION}"
+    MACHO_CURRENT_VERSION "${sz_MACHO_CURRENT_VERSION}"
     OUTPUT_NAME sz)
   if(MSVC OR ("${CMAKE_C_SIMULATE_ID}" STREQUAL "MSVC"))
     set_target_properties(sz-shared PROPERTIES OUTPUT_NAME szip)
