@@ -2,7 +2,7 @@
  * @file sz_compat.c
  *
  * @section LICENSE
- * Copyright 2025 Mathis Rosenhauer, Moritz Hanke, Joerg Behrens, Luis Kornblueh
+ * Copyright 2026 Mathis Rosenhauer, Moritz Hanke, Joerg Behrens, Luis Kornblueh
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without

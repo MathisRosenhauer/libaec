@@ -1,6 +1,16 @@
 # libaec Changelog
 All notable changes to libaec will be documented in this file.
 
+## [1.1.5] - 2026-01-23
+
+### Changed
+- CMake now builds libaec and libsz on MacOS with the same version
+  and compatibility version as libtool.
+
+### Fixed
+- CMake fixes by Antonio Rojas, Christoph Junghans, Orion Poplawski
+  and malcolm-vivosa
+
 ## [1.1.4] - 2025-06-12
 
 ### Changed
