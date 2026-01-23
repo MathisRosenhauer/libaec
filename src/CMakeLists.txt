@@ -43,7 +43,7 @@ if(BUILD_SHARED_LIBS)
   # Shared libaec versioning
   set(libaec_VERSION_MAJOR 0)
   set(libaec_VERSION_MINOR 1)
-  set(libaec_VERSION_PATCH 4)
+  set(libaec_VERSION_PATCH 5)
 
   # libtool compatible versioning for Mach-O
   math(EXPR libaec_MACHO_COMPATIBILITY_VERSION

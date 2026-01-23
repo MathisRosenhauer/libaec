@@ -5,7 +5,7 @@ lib_LTLIBRARIES = libaec.la libsz.la
 libaec_la_SOURCES = encode.c encode_accessors.c decode.c vector.c\
 encode.h encode_accessors.h decode.h vector.h
 libaec_la_CPPFLAGS = $(AM_CPPFLAGS) -DLIBAEC_BUILD $(LIBAEC_SHARED)
-libaec_la_LDFLAGS = -version-info 1:4:1 -no-undefined
+libaec_la_LDFLAGS = -version-info 1:5:1 -no-undefined
 libsz_la_SOURCES = sz_compat.c
 libsz_la_LIBADD = libaec.la
 libsz_la_CPPFLAGS = $(AM_CPPFLAGS) -DLIBAEC_BUILD $(LIBAEC_SHARED)
