@@ -61,8 +61,8 @@ if(AEC_FUZZING)
 
   add_subdirectory(fuzzing)
   set(FUZZ_TARGET_SAN_FLAGS -fsanitize=fuzzer-no-link,address,undefined)
-  target_compile_options(aec PUBLIC -g -O1 ${FUZZ_TARGET_SAN_FLAGS})
-  target_link_options(aec PUBLIC ${FUZZ_TARGET_SAN_FLAGS})
+  target_compile_options(aec-shared-objects PUBLIC -g -O1 ${FUZZ_TARGET_SAN_FLAGS})
+  target_link_options(aec-shared PUBLIC ${FUZZ_TARGET_SAN_FLAGS})
 endif()
 
 # Include the install rules if the user wanted them (included by
