@@ -672,7 +672,11 @@ int aec_decode_init(struct aec_stream *strm)
     struct internal_state *state;
     int modi;
 
-    if (strm->bits_per_sample > 32 || strm->bits_per_sample == 0)
+    if (strm->bits_per_sample > 32
+        || strm->bits_per_sample == 0
+        || strm->rsi == 0
+        || strm->block_size & 1
+        || strm->block_size == 0)
         return AEC_CONF_ERROR;
 
     state = malloc(sizeof(struct internal_state));
@@ -718,6 +722,7 @@ int aec_decode_init(struct aec_stream *strm)
                 else
                     state->id_len = 2;
             } else {
+                free(state);
                 return AEC_CONF_ERROR;
             }
         } else {
@@ -742,8 +747,10 @@ int aec_decode_init(struct aec_stream *strm)
 
     modi = 1UL << state->id_len;
     state->id_table = malloc(modi * sizeof(int (*)(struct aec_stream *)));
-    if (state->id_table == NULL)
+    if (state->id_table == NULL) {
+        free(state);
         return AEC_MEM_ERROR;
+    }
 
     state->id_table[0] = m_low_entropy;
     for (int i = 1; i < modi - 1; i++) {
@@ -753,8 +760,11 @@ int aec_decode_init(struct aec_stream *strm)
 
     state->rsi_size = strm->rsi * strm->block_size;
     state->rsi_buffer = malloc(state->rsi_size * sizeof(uint32_t));
-    if (state->rsi_buffer == NULL)
+    if (state->rsi_buffer == NULL) {
+        free(state->id_table);
+        free(state);
         return AEC_MEM_ERROR;
+    }
 
     state->pp = strm->flags & AEC_DATA_PREPROCESS;
     if (state->pp) {

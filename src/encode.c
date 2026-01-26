@@ -424,7 +424,7 @@ static void init_output(struct aec_stream *strm)
 
     struct internal_state *state = strm->state;
 
-    if (strm->avail_out > CDSLEN) {
+    if (strm->avail_out > state->cds_len) {
         if (!state->direct_out) {
             state->direct_out = 1;
             *strm->next_out = *state->cds;
@@ -749,6 +749,8 @@ static void cleanup(struct aec_stream *strm)
         free(state->data_raw);
     if (state->data_pp)
         free(state->data_pp);
+    if (state->cds_buf)
+        free(state->cds_buf);
     free(state);
 }
 
@@ -762,12 +764,17 @@ int aec_encode_init(struct aec_stream *strm)
 {
     struct internal_state *state;
 
-    if (strm->bits_per_sample > 32 || strm->bits_per_sample == 0)
+    if (strm->bits_per_sample > 32
+        || strm->bits_per_sample == 0
+        || strm->rsi > 4096
+        || strm->rsi == 0)
         return AEC_CONF_ERROR;
 
     if (strm->flags & AEC_NOT_ENFORCE) {
-        /* All even block sizes are allowed. */
-        if (strm->block_size & 1)
+        /* Allow non-standard block sizes */
+        if (strm->block_size & 1
+            || strm->block_size == 0
+            || strm->block_size > 256)
             return AEC_CONF_ERROR;
     } else {
         /* Only allow standard conforming block sizes */
@@ -777,9 +784,6 @@ int aec_encode_init(struct aec_stream *strm)
             && strm->block_size != 64)
             return AEC_CONF_ERROR;
     }
-
-    if (strm->rsi > 4096)
-        return AEC_CONF_ERROR;
 
     state = malloc(sizeof(struct internal_state));
     if (state == NULL)
@@ -835,6 +839,7 @@ int aec_encode_init(struct aec_stream *strm)
                 else
                     state->id_len = 2;
             } else {
+                free(state);
                 return AEC_CONF_ERROR;
             }
         } else {
@@ -859,6 +864,14 @@ int aec_encode_init(struct aec_stream *strm)
 
     state->kmax = (1U << state->id_len) - 3;
 
+    /* Maximum CDS length. We need extra 8 bytes for copy64() */
+    state->cds_len = (state->id_len + strm->block_size
+                      * strm->bits_per_sample) / 8 + 1 + 8;
+    state->cds_buf = malloc(state->cds_len);
+    if (state->cds_buf == NULL) {
+        cleanup(strm);
+        return AEC_MEM_ERROR;
+    }
     state->data_pp = malloc(strm->rsi
                             * strm->block_size
                             * sizeof(uint32_t));
