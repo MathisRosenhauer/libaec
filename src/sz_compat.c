@@ -144,6 +144,14 @@ int SZ_BufftoBuffCompress(void *dest, size_t *destLen,
     size_t padbuf_size;
     size_t padding_size;
 
+    if (param->pixels_per_scanline == 0
+        || param->pixels_per_scanline > 4096
+        || param->pixels_per_block == 0
+        || param->pixels_per_block & 1
+        || param->bits_per_pixel == 0
+        || (param->bits_per_pixel > 32 && param->bits_per_pixel != 64))
+        return SZ_PARAM_ERROR;
+
     strm.block_size = param->pixels_per_block;
     strm.rsi = (param->pixels_per_scanline + param->pixels_per_block - 1)
         / param->pixels_per_block;
@@ -166,6 +174,10 @@ int SZ_BufftoBuffCompress(void *dest, size_t *destLen,
     }
 
     pixel_size = bits_to_bytes(strm.bits_per_sample);
+    if (sourceLen % pixel_size != 0) {
+        status = SZ_PARAM_ERROR;
+        goto CLEANUP;
+    }
 
     scanlines = (sourceLen / pixel_size + param->pixels_per_scanline - 1)
         / param->pixels_per_scanline;
@@ -215,6 +227,13 @@ int SZ_BufftoBuffDecompress(void *dest, size_t *destLen,
     int pixel_size;
     size_t total_out;
     size_t scanlines;
+
+    if (param->pixels_per_scanline == 0
+        || param->pixels_per_block == 0
+        || param->pixels_per_block & 1
+        || param->bits_per_pixel == 0
+        || (param->bits_per_pixel > 32 && param->bits_per_pixel != 64))
+        return SZ_PARAM_ERROR;
 
     strm.block_size = param->pixels_per_block;
     strm.rsi = (param->pixels_per_scanline + param->pixels_per_block - 1)

@@ -60,6 +60,10 @@
 #define SZ_MAX_PIXELS_PER_SCANLINE                              \
     (SZ_MAX_BLOCKS_PER_SCANLINE) * (SZ_MAX_PIXELS_PER_BLOCK)
 
+#ifdef __cplusplus
+extern "C"{
+#endif
+
 typedef struct SZ_com_t_s
 {
     int options_mask;
@@ -78,5 +82,10 @@ LIBAEC_DLL_EXPORTED int SZ_BufftoBuffDecompress(
     SZ_com_t *param);
 
 LIBAEC_DLL_EXPORTED int SZ_encoder_enabled(void);
+
+#ifdef __cplusplus
+}
+#endif
+
 
 #endif /* SZLIB_H */
