@@ -47,10 +47,6 @@
 #define M_EXIT 0
 #define MIN(a, b) (((a) < (b))? (a): (b))
 
-/* Maximum CDS length in bytes: 5 bits ID, 64 * 32 bits samples, 7
- * bits carry from previous CDS */
-#define CDSLEN ((5 + 64 * 32 + 7 + 7) / 8)
-
 /* Marker for Remainder Of Segment condition in zero block encoding */
 #define ROS -1
 
@@ -95,8 +91,8 @@ struct internal_state {
     uint8_t *cds;
 
     /* buffer for one CDS (only used if strm->next_out cannot hold
-     * full CDS) */
-    uint8_t cds_buf[CDSLEN];
+     * a full CDS) */
+    uint8_t *cds_buf;
 
     /* cds points to strm->next_out (1) or cds_buf (0) */
     int direct_out;
@@ -139,8 +135,11 @@ struct internal_state {
     /* 1 if flushing was successful */
     int flushed;
 
-    /* length of uncompressed CDS */
+    /* length of an uncompressed block */
     uint32_t uncomp_len;
+
+    /* maximum length of a CDS */
+    uint32_t cds_len;
 
     /* RSI offsets container */
     struct vector_t *offsets;
