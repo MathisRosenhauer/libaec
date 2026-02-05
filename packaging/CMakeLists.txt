@@ -35,7 +35,7 @@ if(BUILD_STATIC_LIBS)
     EXPORT libaec_static_targets
     PUBLIC_HEADER DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}")
 
-  install(EXPORT libaec_shared_targets
+  install(EXPORT libaec_static_targets
     DESTINATION "${libaec_INSTALL_CMAKEDIR}"
     NAMESPACE libaec::
     FILE libaec_static-targets.cmake)
