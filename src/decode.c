@@ -461,6 +461,8 @@ static int m_split(struct aec_stream *strm)
         if (state->ref)
             *state->rsip++ = direct_get(strm, strm->bits_per_sample);
 
+        if (state->encoded_block_size > state->rsi_size - RSI_USED_SIZE(state))
+            return M_ERROR;
         for (size_t i = 0; i < state->encoded_block_size; i++)
             state->rsip[i] = direct_get_fs(strm) << k;
 
