@@ -971,7 +971,8 @@ int aec_encode_get_offsets(struct aec_stream *strm, size_t *offsets, size_t offs
     if (offsets_count < vector_size(state->offsets)) {
         return AEC_MEM_ERROR;
     }
-    memcpy(offsets, vector_data(state->offsets), offsets_count * sizeof(size_t));
+    memcpy(offsets, vector_data(state->offsets),
+           vector_size(state->offsets) * sizeof(size_t));
     return AEC_OK;
 }
 

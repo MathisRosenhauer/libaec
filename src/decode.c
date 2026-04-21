@@ -195,13 +195,22 @@ static inline uint32_t direct_get(struct aec_stream *strm, int n)
     /**
        Get n bit from input stream
 
-       No checking whatsoever. Read bits are dumped.
+       Optimised fast path: no checking whatsoever. Read bits are dumped.
+       The caller is responsible for ensuring avail_in >= in_blklen before
+       invoking the fast path.  As a defensive measure we clamp the byte
+       load to avail_in; if fewer bytes than requested are available the
+       accumulator is zero-padded and the returned value may be wrong, but
+       we will not read past the end of the buffer.
      */
 
     struct internal_state *state = strm->state;
     if (state->bitp < n)
     {
         int b = (63 - state->bitp) >> 3;
+        /* Clamp to available bytes – avail_in may have been drained by
+         * earlier direct_get_fs calls within the same fast-path block. */
+        if ((size_t)b > strm->avail_in)
+            b = (int)strm->avail_in;
         if (b == 6) {
             state->acc = (state->acc << 48)
                 | ((uint64_t)strm->next_in[0] << 40)
@@ -249,6 +258,9 @@ static inline uint32_t direct_get(struct aec_stream *strm, int n)
         strm->avail_in -= b;
         state->bitp += b << 3;
     }
+
+    if (state->bitp < n)
+        return 0;  /* Ran out of input; return zero rather than undefined. */
 
     state->bitp -= n;
     return (state->acc >> state->bitp) & (UINT64_MAX >> (64 - n));
@@ -458,6 +470,12 @@ static int m_split(struct aec_stream *strm)
         int k = state->id - 1;
         size_t binary_part = (k * state->encoded_block_size) / 8 + 9;
 
+        /* Check input availability before any side effects on rsip so
+         * that a premature M_ERROR doesn't leave rsip partially
+         * advanced and corrupt the rsi_buffer on a subsequent call. */
+        if (k && strm->avail_in < binary_part)
+            return M_ERROR;
+
         if (state->ref)
             *state->rsip++ = direct_get(strm, strm->bits_per_sample);
 
@@ -465,9 +483,6 @@ static int m_split(struct aec_stream *strm)
             state->rsip[i] = direct_get_fs(strm) << k;
 
         if (k) {
-            if (strm->avail_in < binary_part)
-                return M_ERROR;
-
             for (size_t i = 0; i < state->encoded_block_size; i++)
                 *state->rsip++ += direct_get(strm, k);
         } else {
@@ -519,6 +534,8 @@ static int m_zero_block(struct aec_stream *strm)
         zero_blocks--;
     }
 
+    if (zero_blocks > UINT32_MAX / strm->block_size)
+        return M_ERROR;
     zero_samples = zero_blocks * strm->block_size - state->ref;
     if (state->rsi_size - RSI_USED_SIZE(state) < zero_samples)
         return M_ERROR;
@@ -675,7 +692,9 @@ int aec_decode_init(struct aec_stream *strm)
     if (strm->bits_per_sample > 32
         || strm->bits_per_sample == 0
         || strm->rsi == 0
+        || strm->rsi > 4096
         || strm->block_size & 1
+        || strm->block_size > 256
         || strm->block_size == 0)
         return AEC_CONF_ERROR;
 
@@ -812,8 +831,15 @@ int aec_decode(struct aec_stream *strm, int flush)
         return AEC_DATA_ERROR;
 
     if (status == M_EXIT && strm->avail_out > 0 &&
-        strm->avail_out < state->bytes_per_sample)
+        strm->avail_out < state->bytes_per_sample) {
+        /* Flush the samples already decoded into rsi_buffer so that
+         * next_out and avail_out remain consistent with each other.
+         * The caller can detect partial output via AEC_MEM_ERROR. */
+        state->flush_output(strm);
+        strm->total_in -= strm->avail_in;
+        strm->total_out -= strm->avail_out;
         return AEC_MEM_ERROR;
+    }
 
     state->flush_output(strm);
 
@@ -881,6 +907,9 @@ int aec_decode_range(struct aec_stream *strm, const size_t *rsi_offsets, size_t 
     unsigned char *out_tmp;
     struct aec_stream strm_tmp = *strm;
 
+    if (strm->avail_out < size)
+        return AEC_MEM_ERROR;
+
     if (state->pp) {
         state->ref = 1;
         state->encoded_block_size = strm->block_size - 1;
@@ -896,6 +925,8 @@ int aec_decode_range(struct aec_stream *strm, const size_t *rsi_offsets, size_t 
     state->mode = m_id;
 
     rsi_size = strm->rsi * strm->block_size * state->bytes_per_sample;
+    if (size > SIZE_MAX - (pos % rsi_size) - state->bytes_per_sample - 1)
+        return AEC_DATA_ERROR;
     rsi_n = pos / rsi_size;
     if (rsi_n >= rsi_offsets_count)
         return AEC_DATA_ERROR;
@@ -908,11 +939,15 @@ int aec_decode_range(struct aec_stream *strm, const size_t *rsi_offsets, size_t 
         return AEC_MEM_ERROR;
     strm_tmp.next_out = out_tmp;
 
-    if ((status = aec_buffer_seek(&strm_tmp, rsi_offsets[rsi_n])) != AEC_OK)
+    if ((status = aec_buffer_seek(&strm_tmp, rsi_offsets[rsi_n])) != AEC_OK) {
+        free(out_tmp);
         return status;
+    }
 
-    if ((status = aec_decode(&strm_tmp, AEC_FLUSH)) != 0)
+    if ((status = aec_decode(&strm_tmp, AEC_FLUSH)) != 0) {
+        free(out_tmp);
         return status;
+    }
 
     memcpy(strm->next_out, out_tmp + (pos - rsi_n * rsi_size), size);
 
