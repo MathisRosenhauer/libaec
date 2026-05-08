@@ -1,6 +1,12 @@
 # libaec Changelog
 All notable changes to libaec will be documented in this file.
 
+## [Unreleased]
+
+### Fixed
+- Fixed several security vulnerabilities discovered by libFuzzer and AI
+  assistant
+
 ## [1.1.6] - 2026-02-16
 
 ### Fixed

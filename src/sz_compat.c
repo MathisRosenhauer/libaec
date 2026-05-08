@@ -182,6 +182,11 @@ int SZ_BufftoBuffCompress(void *dest, size_t *destLen,
     scanlines = (sourceLen / pixel_size + param->pixels_per_scanline - 1)
         / param->pixels_per_scanline;
     padbuf_size = strm.rsi * strm.block_size * pixel_size * scanlines;
+    if (scanlines != 0
+        && padbuf_size / scanlines != (size_t)strm.rsi * strm.block_size * pixel_size) {
+        status = SZ_PARAM_ERROR;
+        goto CLEANUP;
+    }
     padbuf = malloc(padbuf_size);
     if (padbuf == NULL) {
         status = SZ_MEM_ERROR;
@@ -229,6 +234,7 @@ int SZ_BufftoBuffDecompress(void *dest, size_t *destLen,
     size_t scanlines;
 
     if (param->pixels_per_scanline == 0
+        || param->pixels_per_scanline > 4096
         || param->pixels_per_block == 0
         || param->pixels_per_block & 1
         || param->bits_per_pixel == 0
