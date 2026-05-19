@@ -1,7 +1,7 @@
 # libaec Changelog
 All notable changes to libaec will be documented in this file.
 
-## [Unreleased]
+## [1.1.7] - 2026-05-19
 
 ### Fixed
 - Fixed several security vulnerabilities discovered by libFuzzer and AI
