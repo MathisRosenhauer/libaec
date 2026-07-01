@@ -40,7 +40,7 @@ See [INSTALL.md](INSTALL.md) for details.
 
 ## SZIP Compatibility
 
-[Libaec can replace SZIP](README.SZIP).
+Libaec contains libsz which can replace SZIP.
 
 ## Encoding
 
